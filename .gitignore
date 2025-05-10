@@ -1,0 +1,32 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+.env
+
+# Flask
+instance/
+.flaskenv
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+
+# SQLite database
+db.sqlite3
+db.sqlite3-journal
+
+# Flask & SQLite
+instance/
+*.db

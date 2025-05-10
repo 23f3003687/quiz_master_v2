@@ -1,0 +1,96 @@
+<template>
+  <div class="auth-form">
+    <h2>Register</h2>
+    <form @submit.prevent="register">
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" v-model="email" id="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" v-model="password" id="password" required />
+      </div>
+      <div>
+        <label for="full_name">Full Name:</label>
+        <input type="text" v-model="full_name" id="full_name" required />
+      </div>
+      <div>
+        <label for="dob">Date of Birth:</label>
+        <input type="date" v-model="dob" id="dob" required />
+      </div>
+      <div>
+        <label for="dob">Qualification:</label>
+        <input
+          type="text"
+          v-model="qualification"
+          id="qualification"
+          required
+        />
+      </div>
+      <button type="submit">Register</button>
+    </form>
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <p>
+      Already have an account? <router-link to="/login">Login here</router-link>
+    </p>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+export default {
+  name: "Register",
+  setup() {
+    const email = ref("");
+    const password = ref("");
+    const full_name = ref("");
+    const dob = ref("");
+    const qualification = ref("");
+    const errorMessage = ref("");
+    const router = useRouter();
+
+    const register = async () => {
+      try {
+        await axios.post("http://localhost:5000/auth/register", {
+          email: email.value,
+          password: password.value,
+          full_name: full_name.value,
+          dob: dob.value,
+          qualification: qualification.value,
+        });
+        router.push("/login"); // Redirect to login after successful registration
+      } catch (error) {
+        errorMessage.value = "Registration failed. Please try again.";
+      }
+    };
+
+    return {
+      email,
+      password,
+      full_name,
+      dob,
+      qualification,
+      errorMessage,
+      register,
+    };
+  },
+};
+</script>
+
+<style scoped>
+/* Add your styles here */
+.auth-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  margin-top: 10px;
+}
+</style>

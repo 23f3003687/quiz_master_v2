@@ -5,16 +5,15 @@ from models import db, User
 from dotenv import load_dotenv
 from datetime import datetime
 from routes.auth_routes import auth_bp
-# from routes.admin_routes import admin_bp
+from routes.admin_routes import admin_bp
 # from routes.user_routes import user_bp
 import os
 from flask_cors import CORS
-# Load environment variables from .env file
-load_dotenv()
+
 
 # Initialize Flask app
 app = Flask(__name__, template_folder='templates')
-CORS(app, resources={r"/*": {"origins": "http://localhost:5174"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
 # Configurations
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_master.db'
@@ -35,7 +34,7 @@ login_manager.login_view = 'auth.login'
 
 # # Blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
-# app.register_blueprint(admin_bp, url_prefix='/admin')
+app.register_blueprint(admin_bp, url_prefix='/admin')
 # app.register_blueprint(user_bp, url_prefix='/user')
 
 # Flask-Login user loader
@@ -77,6 +76,7 @@ with app.app_context():
 @app.route('/')
 def index():
     return jsonify({"message": "Quiz Master API is running."})
+
 
 
 # Run server

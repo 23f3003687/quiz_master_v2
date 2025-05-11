@@ -39,7 +39,7 @@ export default {
           email: email.value,
           password: password.value,
         });
-        localStorage.setItem("token", response.data.token); // Save JWT token in localStorage
+        localStorage.setItem("access_token", response.data.access_token); // Save JWT token in localStorage
         router.push("/dashboard"); // Redirect to dashboard after successful login
       } catch (error) {
         errorMessage.value = "Invalid credentials, please try again.";

@@ -35,8 +35,6 @@ def ensure_admin_user():
         print("✅ Admin user created.")
     else:
         print("ℹ️ Admin already exists.")
-
-# User Login
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -49,10 +47,16 @@ def login():
         # Update last_login
         user.last_login = datetime.utcnow()
         db.session.commit()
-        token = create_access_token(identity={"user_id": user.user_id, "is_admin": user.is_admin})
-        return jsonify({"token": token, "is_admin": user.is_admin}), 200
 
-    return jsonify({"error": "Invalid credentials"}), 401
+        access_token = create_access_token(
+            identity=user.user_id,
+            additional_claims={"is_admin": user.is_admin}
+        )
+        return jsonify({"access_token": access_token, "is_admin": user.is_admin}), 200
+
+    return jsonify({"msg": "Invalid credentials"}), 401
+
+
 
 # User Registration
 @auth_bp.route('/register', methods=['POST'])

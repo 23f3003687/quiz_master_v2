@@ -1,19 +1,36 @@
 <template>
-  <aside class="bg-gray-800 text-white p-4 w-64 h-screen rounded-xl shadow-xl">
-    <h2 class="text-xl font-bold mb-4">Admin</h2>
-    <ul>
-      <li class="mb-2"><a href="#" class="hover:text-yellow-400">Home</a></li>
-      <li class="mb-2"><a href="#" class="hover:text-yellow-400">Users</a></li>
-      <li class="mb-2">
-        <a href="#" class="hover:text-yellow-400">Summary</a>
+  <div class="sidebar bg-dark text-white p-3 vh-100">
+    <h4 class="fw-bold mb-4 mt-1">Admin Panel</h4>
+    <ul class="nav flex-column gap-2">
+      <li class="nav-item">
+        <router-link to="/admin/subjects" class="nav-link text-white">
+          <i class="bi bi-house-door"></i> Home
+        </router-link>
       </li>
-      <li class="mb-2"><a href="#" class="hover:text-yellow-400">Logout</a></li>
+      <li class="nav-item">
+        <router-link to="/admin/users" class="nav-link text-white">
+          <i class="bi bi-people"></i> Users
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <router-link to="/admin/summary" class="nav-link text-white">
+          <i class="bi bi-graph-up"></i> Summary
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-danger" href="#" @click.prevent="logout">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </li>
     </ul>
-  </aside>
+  </div>
 </template>
 
-<script>
-export default {
-  name: "Sidebar",
-};
-</script>
+<style scoped>
+.sidebar {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+</style>

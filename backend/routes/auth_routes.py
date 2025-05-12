@@ -10,31 +10,7 @@ load_dotenv()
 # Create Blueprint
 auth_bp = Blueprint('auth', __name__)
 
-# Admin credentials from environment
-admin_email = os.getenv('ADMIN_EMAIL')
-admin_password_hash = os.getenv('ADMIN_PASSWORD_HASH')
 
-# Ensure Admin Exists
-def ensure_admin_user():
-    if not admin_email or not admin_password_hash:
-        print("Admin email or password hash not found in .env")
-        return
-
-    existing_admin = User.query.filter_by(email=admin_email, is_admin=True).first()
-    if not existing_admin:
-        admin = User(
-            email=admin_email,
-            password=admin_password_hash,  # Already hashed in .env
-            full_name="Quiz Master",
-            qualification="Admin Certified",
-            dob=datetime.strptime('1990-01-01', '%Y-%m-%d'),
-            is_admin=True
-        )
-        db.session.add(admin)
-        db.session.commit()
-        print("✅ Admin user created.")
-    else:
-        print("ℹ️ Admin already exists.")
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()

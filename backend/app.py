@@ -44,13 +44,11 @@ def load_user(user_id):
 
 
 @jwt.invalid_token_loader
-def invalid_token_callback(error):
-    print("⚠️ Invalid token error:", error)
+def invalid_token_callback(error: str):
     return jsonify({"msg": "Invalid token"}), 422
 
 @jwt.unauthorized_loader
-def unauthorized_callback(reason):
-    print("⚠️ Unauthorized access:", reason)
+def unauthorized_callback(reason: str):
     return jsonify({"msg": "Missing or invalid token"}), 401
 
 # ✅ Create admin user using pre-hashed password

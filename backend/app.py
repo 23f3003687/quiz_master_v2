@@ -42,6 +42,17 @@ app.register_blueprint(admin_bp, url_prefix='/admin')
 def load_user(user_id):
    return User.query.get(int(user_id))
 
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    print("⚠️ Invalid token error:", error)
+    return jsonify({"msg": "Invalid token"}), 422
+
+@jwt.unauthorized_loader
+def unauthorized_callback(reason):
+    print("⚠️ Unauthorized access:", reason)
+    return jsonify({"msg": "Missing or invalid token"}), 401
+
 # ✅ Create admin user using pre-hashed password
 def create_admin_user():
     admin_email = os.getenv('ADMIN_EMAIL')

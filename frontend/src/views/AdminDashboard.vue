@@ -43,12 +43,14 @@ export default {
     async fetchSubjects() {
       try {
         const token = localStorage.getItem("access_token"); // ✅ Get JWT from localStorage
+        console.log("Token in fetchSubjects:", token); // Should not be null
 
         const response = await axios.get(
           "http://localhost:5000/admin/subjects",
           {
             headers: {
               Authorization: `Bearer ${token}`, // ✅ Pass token in request
+              "Content-Type": "application/json",
             },
           }
         );

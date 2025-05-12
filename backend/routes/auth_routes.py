@@ -49,7 +49,7 @@ def login():
         db.session.commit()
 
         access_token = create_access_token(
-            identity=user.user_id,
+            identity=str(user.user_id),
             additional_claims={"is_admin": user.is_admin}
         )
         return jsonify({"access_token": access_token, "is_admin": user.is_admin}), 200

@@ -16,11 +16,13 @@
         <div class="subject-cards-container">
           <div
             v-for="subject in subjects"
-            :key="subject.name"
+            :key="subject.subject_id"
             class="subject-card"
           >
-            <h4>{{ subject.name }}</h4>
-            <p>{{ subject.description }}</p>
+            <router-link :to="'/admin/subject/' + subject.subject_id">
+              <h4>{{ subject.name }}</h4>
+              <p>{{ subject.description }}</p>
+            </router-link>
           </div>
         </div>
 

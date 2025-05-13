@@ -6,7 +6,7 @@ admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/subjects', methods=['GET'])
 @jwt_required()
-def get_subjects():
+def get_subjects(): #show all the subjects on dashboard
     claims = get_jwt()
     is_admin = claims.get("is_admin", False)
 
@@ -57,3 +57,33 @@ def create_subject():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@admin_bp.route('/subject/<int:subject_id>', methods=['GET']) #show subject details
+@jwt_required()
+def get_subject_details(subject_id):
+    claims = get_jwt()
+    is_admin = claims.get("is_admin", False)
+
+    if not is_admin:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        subject = Subject.query.get(subject_id)
+        if not subject:
+            return jsonify({"error": "Subject not found"}), 404
+
+        chapters = subject.chapters  # Assuming you have a relationship between Subject and Chapter
+        chapters_list = [
+            {
+                "chapter_id": chapter.chapter_id,
+                "name": chapter.name,
+                "description": chapter.description,
+                "difficulty": chapter.difficulty,
+            }
+            for chapter in chapters
+        ]
+
+        return jsonify({"subject": {"name": subject.name, "description": subject.description}, "chapters": chapters_list}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+

@@ -12,6 +12,18 @@
       <div class="flex-grow-1 p-4 bg-light overflow-auto">
         <h2 class="page-title">Subjects</h2>
 
+        <!-- Dynamic Subjects -->
+        <div class="subject-cards-container">
+          <div
+            v-for="subject in subjects"
+            :key="subject.name"
+            class="subject-card"
+          >
+            <h4>{{ subject.name }}</h4>
+            <p>{{ subject.description }}</p>
+          </div>
+        </div>
+
         <!-- Dynamic Subjects go here -->
 
         <!-- Floating Create Subject Button -->
@@ -40,46 +52,58 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
+<script>
 import axios from "axios";
 import Navbar from "@/components/navbar.vue";
 import Sidebar from "@/components/sidebar.vue";
 
-// Reactive state
-const showForm = ref(false);
-const newSubject = ref({
-  name: "",
-  description: "",
-});
-const subjects = ref([]);
-
-// API call
-const fetchSubjects = async () => {
-  try {
-    const token = localStorage.getItem("access_token");
-    const response = await axios.get("http://localhost:5000/admin/subjects", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+export default {
+  name: "AdminDashboard",
+  components: {
+    Navbar,
+    Sidebar,
+  },
+  data() {
+    return {
+      showForm: false,
+      newSubject: {
+        name: "",
+        description: "",
       },
-    });
-    subjects.value = response.data;
-  } catch (error) {
-    console.error("Failed to fetch subjects:", error);
-  }
-};
+      subjects: [],
+    };
+  },
+  methods: {
+    async fetchSubjects() {
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get(
+          "http://localhost:5000/admin/subjects",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        this.subjects = response.data;
+      } catch (error) {
+        console.error("Failed to fetch subjects:", error);
+      }
+    },
+    createSubject() {
+      const { name, description } = this.newSubject;
+      if (!name || !description) return;
 
-const createSubject = () => {
-  if (!newSubject.value.name || !newSubject.value.description) return;
-  subjects.value.push({ ...newSubject.value });
-  newSubject.value = { name: "", description: "" };
-  showForm.value = false;
+      this.subjects.push({ name, description }); // add to UI
+      this.newSubject = { name: "", description: "" }; // clear form
+      this.showForm = false; // close modal
+    },
+  },
+  mounted() {
+    this.fetchSubjects();
+  },
 };
-
-onMounted(() => {
-  fetchSubjects();
-});
 </script>
 
 <style scoped>
@@ -182,5 +206,22 @@ onMounted(() => {
   background-color: #333;
   color: white;
   cursor: pointer;
+}
+
+.subject-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-left: 260px; /* same as sidebar width */
+  margin-top: 20px;
+}
+
+.subject-card {
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 250px;
+  min-height: 120px;
 }
 </style>

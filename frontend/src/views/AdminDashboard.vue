@@ -91,13 +91,36 @@ export default {
         console.error("Failed to fetch subjects:", error);
       }
     },
-    createSubject() {
+    async createSubject() {
       const { name, description } = this.newSubject;
+
       if (!name || !description) return;
 
-      this.subjects.push({ name, description }); // add to UI
-      this.newSubject = { name: "", description: "" }; // clear form
-      this.showForm = false; // close modal
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await axios.post(
+          "http://localhost:5000/admin/subjects",
+          {
+            name,
+            description,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // Push the newly created subject from backend response
+        this.subjects.push(response.data);
+
+        // Reset form and close modal
+        this.newSubject = { name: "", description: "" };
+        this.showForm = false;
+      } catch (error) {
+        console.error("Error creating subject:", error);
+      }
     },
   },
   mounted() {

@@ -1,5 +1,5 @@
 <template>
-<div class="bg-dark text-white p-3 vh-100">
+<div class="bg-dark text-white p-3 ">
     <h4 class="fw-bold mb-4 mt-1">Admin Panel</h4>
     <ul class="nav flex-column gap-2">
       <li class="nav-item">
@@ -28,9 +28,12 @@
 
 <style scoped>
 .sidebar {
-  width: 250px;
-  position: static;
+  width: 175px;
+  height: 100vh;
+  position: fixed;
   top: 0;
   left: 0;
+  z-index: 998;
 }
+
 </style>

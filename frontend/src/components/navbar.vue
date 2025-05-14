@@ -1,7 +1,7 @@
 <template>
   <nav
     class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4"
-    style="height: 60px; z-index: 1000"
+    style="height: 60px; z-index: 999"
   >
     <div
       class="container-fluid d-flex justify-content-between align-items-center"
@@ -30,7 +30,7 @@ export default {
 .navbar {
   position: fixed;
   top: 0;
-  left: 260px; /* same as sidebar width */
+  left: 200px; /* same as sidebar width */
   right: 0;
   height: 60px;
   background-color: white;

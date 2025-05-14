@@ -6,9 +6,7 @@
     <!-- Main content on the right -->
     <div class="flex-grow-1 d-flex flex-column">
       <!-- Navbar at the top -->
-      <div style="margin-left: 260px;">
-        <Navbar class="bg-white shadow-sm w-100" />
-      </div>
+        <Navbar class="bg-white shadow-sm " />
 
 
       <!-- Page content below navbar -->

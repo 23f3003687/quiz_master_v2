@@ -78,7 +78,7 @@ def get_subject_details(subject_id):
                 "chapter_id": chapter.chapter_id,
                 "name": chapter.name,
                 "description": chapter.description,
-                "difficulty": chapter.difficulty,
+                "difficulty_level": chapter.difficulty_level,
             }
             for chapter in chapters
         ]

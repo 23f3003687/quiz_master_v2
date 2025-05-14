@@ -4,12 +4,12 @@
     <Sidebar class="bg-dark text-white" />
 
     <!-- Main content on the right -->
-    <div class="flex-grow-1">
+    <div class="flex-grow-1 overflow-auto">
       <!-- Navbar at the top -->
       <Navbar />
 
       <!-- Page content below navbar -->
-      <div class="container mt-4">
+      <div class="container mt-4 pt-5">
         <!-- Subject Header -->
         <div class="mb-4">
           <h2 class="fw-bold">{{ subject.name }}</h2>

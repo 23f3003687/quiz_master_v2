@@ -1,5 +1,8 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+  <nav
+    class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4"
+    style="height: 60px; z-index: 1000"
+  >
     <div
       class="container-fluid d-flex justify-content-between align-items-center"
     >

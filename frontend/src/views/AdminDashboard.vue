@@ -5,6 +5,7 @@
 
     <!-- Main content area -->
     <div class="flex-grow-1 d-flex flex-column">
+    
       <!-- Navbar -->
       <Navbar class="bg-white shadow-sm" />
 
@@ -136,7 +137,6 @@ export default {
   background-color: rgb(242, 245, 247) !important;
 }
 .page-title {
-  margin-left: 260px; /* same as sidebar width */
   padding-top: 60px; /* slightly more than navbar height */
   font-size: 2rem;
   color: black;
@@ -237,7 +237,6 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  margin-left: 260px; /* same as sidebar width */
   margin-top: 20px;
 }
 

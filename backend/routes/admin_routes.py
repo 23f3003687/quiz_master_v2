@@ -114,3 +114,35 @@ def create_chapter():
         'description': new_chapter.description,
         'difficulty_level': new_chapter.difficulty_level
     }), 201
+
+@admin_bp.route('/subject/<int:subject_id>', methods=['PUT'])
+@jwt_required()
+def update_subject(subject_id):
+    claims = get_jwt()
+    is_admin = claims.get("is_admin", False)
+
+    if not is_admin:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    subject = Subject.query.get(subject_id)
+    if not subject:
+        return jsonify({"error": "Subject not found"}), 404
+
+    data = request.get_json()
+    name = data.get("name")
+    description = data.get("description")
+
+    if name:
+        subject.name = name
+    if description:
+        subject.description = description
+
+    try:
+        db.session.commit()
+        return jsonify({
+            "subject_id": subject.subject_id,
+            "name": subject.name,
+            "description": subject.description
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

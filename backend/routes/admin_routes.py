@@ -1,7 +1,7 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from models import db , Subject
+from models import db , Subject, Chapter
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/subjects', methods=['GET'])
@@ -87,3 +87,30 @@ def get_subject_details(subject_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@admin_bp.route('/chapters', methods=['POST'])
+@jwt_required()
+def create_chapter():
+    data = request.get_json()
+    subject_id = data.get('subject_id')
+    name = data.get('name')
+    description = data.get('description')
+    difficulty_level = data.get('difficulty_level')
+
+    if not subject_id or not name or not difficulty_level:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    new_chapter = Chapter(
+        subject_id=subject_id,
+        name=name,
+        description=description,
+        difficulty_level=difficulty_level
+    )
+    db.session.add(new_chapter)
+    db.session.commit()
+
+    return jsonify({
+        'chapter_id': new_chapter.chapter_id,
+        'name': new_chapter.name,
+        'description': new_chapter.description,
+        'difficulty_level': new_chapter.difficulty_level
+    }), 201

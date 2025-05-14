@@ -30,7 +30,7 @@ export default {
 .navbar {
   position: fixed;
   top: 0;
-  left: 250px; /* same as sidebar width */
+  left: 260px; /* same as sidebar width */
   right: 0;
   height: 60px;
   background-color: white;

@@ -1,15 +1,18 @@
 <template>
   <div class="d-flex vh-100 overflow-hidden">
     <!-- Sidebar on the left -->
-    <Sidebar class="bg-dark text-white" />
+    <Sidebar class="bg-dark text-white " />
 
     <!-- Main content on the right -->
-    <div class="flex-grow-1 overflow-auto">
+    <div class="flex-grow-1 d-flex flex-column">
       <!-- Navbar at the top -->
-      <Navbar />
+      <div style="margin-left: 260px;">
+        <Navbar class="bg-white shadow-sm w-100" />
+      </div>
+
 
       <!-- Page content below navbar -->
-      <div class="container mt-4 pt-5">
+      <div class="container mt-4 pt-5 flex-grow-1 overflow-auto">
         <!-- Subject Header -->
         <div class="mb-4">
           <h2 class="fw-bold">{{ subject.name }}</h2>

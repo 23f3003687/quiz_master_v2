@@ -29,7 +29,7 @@
 <style scoped>
 .sidebar {
   width: 250px;
-  position: fixed;
+  position: static;
   top: 0;
   left: 0;
 }

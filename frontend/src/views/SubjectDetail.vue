@@ -8,9 +8,9 @@
       <!-- Navbar at the top -->
       <Navbar class="bg-white shadow-sm" />
 
-      <!-- Flash message -->
-      <div v-if="successMessage" class="alert alert-success text-center my-3">
-        {{ successMessage }}
+      <!-- Add this floating flash message div just below <Navbar /> component -->
+      <div v-if="showFlash"  :class="['alert', `alert-${flashType}`, 'flash-message']">
+        {{ flashMessage }}
       </div>
 
       <!-- Page content below navbar -->
@@ -165,12 +165,14 @@ export default {
       chapters: [],
       showCreateChapterForm: false,
       showEditModal: false,
+      showFlash: false,
+      flashMessage: "",
+      flashType: "success",
       newChapter: {
         name: "",
         description: "",
         difficulty_level: "",
       },
-      successMessage: "",
     };
   },
   methods: {
@@ -225,18 +227,30 @@ export default {
       }
     },
 
-    async onSubjectUpdated(updatedSubject) {
+     async onSubjectUpdated(updatedSubject) {
       this.subject = updatedSubject;
-      this.$refs.editModal.close(); // close the modal via ref
-      this.successMessage = "Subject updated successfully";
 
-      // Optional: refetch data from backend to stay synced
+      // Close modal via bootstrap modal instance
+      if (this.$refs.editModal && this.$refs.editModal.modalInstance) {
+        this.$refs.editModal.modalInstance.hide();
+      }
+
+      // Show floating flash message
+      this.showFlashMessage("Subject details updated successfully");
+
+      // Optionally refetch chapters or subject details
       await this.fetchSubjectDetails();
+    },
 
-      // Clear message after 3 seconds
+    showFlashMessage(message,type="success") {
+      this.flashMessage = message;
+      this.flashType = type;
+      this.showFlash = true;
+
       setTimeout(() => {
-        this.successMessage = "";
-      }, 3000);
+        this.showFlash = false;
+        this.flashMessage = "";
+      }, 2000);
     },
 
     deleteSubject() {
@@ -263,5 +277,17 @@ export default {
 </script>
 
 <style scoped>
-/* Add styles as needed */
+.flash-message {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 9999;
+  padding: 12px 20px;
+  border-radius: 8px;
+  min-width: 250px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.3s ease-in-out;
+}
+
 </style>

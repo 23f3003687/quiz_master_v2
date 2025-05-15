@@ -109,13 +109,10 @@ export default {
 
         // Close modal after successful update
         this.close();
-        
-        // Optional: show success alert or message here
-        alert("Subject details updated successfully.");
-
       } catch (error) {
         console.error("Failed to update subject:", error);
-        alert("Error updating subject");
+        // Optionally emit error to parent to show a red flash message
+        this.$emit("error", "Error updating subject");
       }
     },
   },

@@ -146,3 +146,19 @@ def update_subject(subject_id):
         }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@admin_bp.route('/admin/subject/<int:subject_id>', methods=['DELETE'])
+@jwt_required()
+def delete_subject(subject_id):
+    claims = get_jwt()
+    is_admin = claims.get("is_admin", False)
+
+    if not is_admin:
+        return jsonify({"error": "Unauthorized"}), 403
+    subject = Subject.query.get(subject_id)
+    if not subject:
+        return jsonify({'error': 'Subject not found'}), 404
+
+    db.session.delete(subject)
+    db.session.commit()
+    return jsonify({'message': 'Subject deleted successfully'})

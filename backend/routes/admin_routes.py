@@ -83,7 +83,7 @@ def get_subject_details(subject_id):
             for chapter in chapters
         ]
 
-        return jsonify({"subject": {"name": subject.name, "description": subject.description}, "chapters": chapters_list}), 200
+        return jsonify({"subject": {"subject_id": subject.subject_id,"name": subject.name, "description": subject.description}, "chapters": chapters_list}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

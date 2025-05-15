@@ -8,6 +8,11 @@
       <!-- Navbar at the top -->
       <Navbar class="bg-white shadow-sm" />
 
+      <!-- Flash message -->
+      <div v-if="successMessage" class="alert alert-success text-center my-3">
+        {{ successMessage }}
+      </div>
+
       <!-- Page content below navbar -->
       <div class="container mt-4 pt-5 flex-grow-1 overflow-auto">
         <!-- Subject Header -->
@@ -15,7 +20,10 @@
           <h2 class="fw-bold">{{ subject.name }}</h2>
           <p class="text-muted">{{ subject.description }}</p>
           <div class="d-flex gap-2 mt-2">
-            <button class="btn btn-outline-primary" @click="editSubject">
+            <button
+              class="btn btn-outline-primary"
+              @click="$refs.editModal.open()"
+            >
               <i class="bi bi-pencil-square me-1"></i> Edit
             </button>
             <button class="btn btn-outline-danger" @click="deleteSubject">
@@ -93,7 +101,9 @@
                 <tr v-for="chapter in chapters" :key="chapter.chapter_id">
                   <td>{{ chapter.name }}</td>
                   <td>{{ chapter.description }}</td>
-                  <td class="text-capitalize">{{ chapter.difficulty_level }}</td>
+                  <td class="text-capitalize">
+                    {{ chapter.difficulty_level }}
+                  </td>
                   <td>
                     <button
                       @click="viewQuiz(chapter.chapter_id)"
@@ -125,34 +135,42 @@
           </div>
         </div>
       </div>
-      <!-- container -->
     </div>
-    <!-- flex-grow-1 -->
+
+    <!-- Edit Subject Modal -->
+    <EditSubjectModal
+      ref="editModal"
+      :subject="subject"
+      @updated="onSubjectUpdated"
+    />
   </div>
-  <!-- d-flex -->
 </template>
 
 <script>
 import axios from "axios";
 import Navbar from "@/components/navbar.vue";
 import Sidebar from "@/components/sidebar.vue";
+import EditSubjectModal from "@/components/EditSubjectModal.vue";
 
 export default {
   name: "SubjectDetail",
   components: {
     Sidebar,
     Navbar,
+    EditSubjectModal,
   },
   data() {
     return {
       subject: {},
       chapters: [],
       showCreateChapterForm: false,
+      showEditModal: false,
       newChapter: {
         name: "",
         description: "",
         difficulty_level: "",
       },
+      successMessage: "",
     };
   },
   methods: {
@@ -186,7 +204,7 @@ export default {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            subject_id: this.$route.params.subjectId,  // fixed this line too
+            subject_id: this.$route.params.subjectId,
             name: this.newChapter.name,
             description: this.newChapter.description,
             difficulty_level: this.newChapter.difficulty_level,
@@ -207,18 +225,32 @@ export default {
       }
     },
 
-    editSubject() {
-      // Navigate to edit subject page
+    async onSubjectUpdated(updatedSubject) {
+      this.subject = updatedSubject;
+      this.$refs.editModal.close(); // close the modal via ref
+      this.successMessage = "Subject updated successfully";
+
+      // Optional: refetch data from backend to stay synced
+      await this.fetchSubjectDetails();
+
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        this.successMessage = "";
+      }, 3000);
     },
+
     deleteSubject() {
-      // Delete the subject
+      // Delete subject logic
     },
+
     viewQuiz(chapterId) {
-      // Redirect to quiz view for this chapter
+      // Navigate to quiz page
     },
+
     editChapter(chapterId) {
       // Navigate to edit chapter page
     },
+
     deleteChapter(chapterId) {
       // Delete chapter logic
     },
@@ -229,7 +261,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 /* Add styles as needed */

@@ -1,12 +1,23 @@
 <template>
-  <div class="grid grid-cols-3 gap-4">
+  <div class="row">
     <div
       v-for="subject in subjects"
       :key="subject.subject_id"
-      class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition duration-300"
+      class="col-md-3 mb-3"
     >
-      <h3 class="text-lg font-semibold mb-2">{{ subject.name }}</h3>
-      <p class="text-gray-600">{{ subject.description }}</p>
+      <router-link
+        :to="'/admin/subject/' + subject.subject_id"
+        class="text-decoration-none text-dark"
+      >
+        <div class="card h-100 shadow-sm transition hover-card">
+          <div class="card-body">
+            <h5 class="card-title fs-4">{{ subject.name }}</h5>
+            <!-- Larger title -->
+            <p class="card-text text-muted fs-6">{{ subject.description }}</p>
+            <!-- Smaller description -->
+          </div>
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -22,3 +33,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.hover-card {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+  background-color:rgb(226, 228, 230); /* light grey hover effect */
+  box-shadow: 0 4px 12px rgb(255, 17, 17); /* stronger shadow on hover */
+}
+</style>

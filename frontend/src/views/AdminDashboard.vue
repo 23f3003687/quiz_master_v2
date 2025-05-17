@@ -5,7 +5,6 @@
 
     <!-- Main content area -->
     <div class="flex-grow-1 d-flex flex-column">
-    
       <!-- Navbar -->
       <Navbar class="bg-white shadow-sm" />
 
@@ -13,21 +12,8 @@
       <div class="flex-grow-1 p-4 bg-light overflow-auto">
         <h2 class="page-title">Subjects</h2>
 
-        <!-- Dynamic Subjects -->
-        <div class="subject-cards-container">
-          <div
-            v-for="subject in subjects"
-            :key="subject.subject_id"
-            class="subject-card"
-          >
-            <router-link :to="'/admin/subject/' + subject.subject_id">
-              <h4>{{ subject.name }}</h4>
-              <p>{{ subject.description }}</p>
-            </router-link>
-          </div>
-        </div>
-
-        <!-- Dynamic Subjects go here -->
+        <!-- Subject Cards Component -->
+        <Subject :subjects="subjects" />
 
         <!-- Floating Create Subject Button -->
         <button class="create-subject-btn" @click="showForm = !showForm">
@@ -59,12 +45,13 @@
 import axios from "axios";
 import Navbar from "@/components/navbar.vue";
 import Sidebar from "@/components/sidebar.vue";
-
+import Subject from "@/views/subjects.vue";
 export default {
   name: "AdminDashboard",
   components: {
     Navbar,
     Sidebar,
+    Subject,
   },
   data() {
     return {
@@ -134,7 +121,7 @@ export default {
 
 <style scoped>
 .bg-light {
-  background-color: rgb(242, 245, 247) !important;
+  background-color: rgb(255, 255, 255) !important;
 }
 .page-title {
   padding-top: 60px; /* slightly more than navbar height */
@@ -233,19 +220,5 @@ export default {
   cursor: pointer;
 }
 
-.subject-cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 20px;
-}
 
-.subject-card {
-  background-color: white;
-  padding: 16px 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  width: 250px;
-  min-height: 120px;
-}
 </style>

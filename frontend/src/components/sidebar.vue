@@ -1,5 +1,5 @@
 <template>
-<div class="bg-dark text-white p-3 ">
+  <div class="bg-dark text-white p-3">
     <h4 class="fw-bold mb-4 mt-1">Admin Panel</h4>
     <ul class="nav flex-column gap-2">
       <li class="nav-item">
@@ -26,6 +26,18 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: "Sidebar",
+  methods: {
+    logout() {
+      localStorage.removeItem("access_token"); // Clear JWT token
+      this.$router.push("/login"); // Navigate to login page
+    },
+  },
+};
+</script>
+
 <style scoped>
 .sidebar {
   width: 175px;
@@ -35,5 +47,4 @@
   left: 0;
   z-index: 998;
 }
-
 </style>

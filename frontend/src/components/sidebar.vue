@@ -47,4 +47,20 @@ export default {
   left: 0;
   z-index: 998;
 }
+.nav-link {
+  padding: 12px 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #343a40;
+  color: #ffffff;
+  border-radius: 6px;
+}
+
+.router-link-exact-active {
+  background-color: #495057;
+  font-weight: 600;
+  border-radius: 6px;
+}
 </style>

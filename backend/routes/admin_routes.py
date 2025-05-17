@@ -147,7 +147,7 @@ def update_subject(subject_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@admin_bp.route('/admin/subject/<int:subject_id>', methods=['DELETE'])
+@admin_bp.route('/subject/<int:subject_id>', methods=['DELETE'])
 @jwt_required()
 def delete_subject(subject_id):
     claims = get_jwt()
@@ -161,4 +161,4 @@ def delete_subject(subject_id):
 
     db.session.delete(subject)
     db.session.commit()
-    return jsonify({'message': 'Subject deleted successfully'})
+    return jsonify({'message': 'Subject deleted successfully'}) , 200

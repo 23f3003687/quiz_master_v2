@@ -9,7 +9,10 @@
       <Navbar class="bg-white shadow-sm" />
 
       <!-- Add this floating flash message div just below <Navbar /> component -->
-      <div v-if="showFlash"  :class="['alert', `alert-${flashType}`, 'flash-message']">
+      <div
+        v-if="showFlash"
+        :class="['alert', `alert-${flashType}`, 'flash-message']"
+      >
         {{ flashMessage }}
       </div>
 
@@ -26,7 +29,7 @@
             >
               <i class="bi bi-pencil-square me-1"></i> Edit
             </button>
-            <button class="btn btn-outline-danger" @click="deleteSubject">
+            <button class="btn btn-outline-danger" @click="onSubjectDeleted">
               <i class="bi bi-trash me-1"></i> Delete
             </button>
           </div>
@@ -142,6 +145,8 @@
       ref="editModal"
       :subject="subject"
       @updated="onSubjectUpdated"
+      @deleted="onSubjectDeleted"
+      @error="showFlashMessage"
     />
   </div>
 </template>
@@ -227,7 +232,7 @@ export default {
       }
     },
 
-     async onSubjectUpdated(updatedSubject) {
+    async onSubjectUpdated(updatedSubject) {
       this.subject = updatedSubject;
 
       // Close modal via bootstrap modal instance
@@ -242,7 +247,7 @@ export default {
       await this.fetchSubjectDetails();
     },
 
-    showFlashMessage(message,type="success") {
+    showFlashMessage(message, type = "success") {
       this.flashMessage = message;
       this.flashType = type;
       this.showFlash = true;
@@ -253,8 +258,32 @@ export default {
       }, 2000);
     },
 
-    deleteSubject() {
-      // Delete subject logic
+    async onSubjectDeleted() {
+      try {
+        const confirmed = confirm(
+          "Are you sure you want to delete this subject?"
+        );
+        if (!confirmed) return;
+
+        const token = localStorage.getItem("access_token");
+        await axios.delete(
+          `http://localhost:5000/admin/subject/${this.subject.subject_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        this.showFlashMessage("Subject deleted successfully", "danger");
+
+        setTimeout(() => {
+          this.$router.push("/dashboard");
+        }, 1500);
+      } catch (error) {
+        console.error("Failed to delete subject:", error);
+        this.showFlashMessage("Failed to delete subject", "danger");
+      }
     },
 
     viewQuiz(chapterId) {
@@ -289,5 +318,4 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: opacity 0.3s ease-in-out;
 }
-
 </style>

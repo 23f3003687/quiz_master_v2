@@ -3,7 +3,7 @@
     <h4 class="fw-bold mb-4 mt-1">Admin Panel</h4>
     <ul class="nav flex-column gap-2">
       <li class="nav-item">
-        <router-link to="/admin/subjects" class="nav-link text-white">
+        <router-link to="/dashboard" class="nav-link text-white">
           <i class="bi bi-house-door"></i> Home
         </router-link>
       </li>

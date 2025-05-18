@@ -8,7 +8,7 @@
         </router-link>
       </li>
       <li class="nav-item">
-        <router-link to="/admin/users" class="nav-link text-white">
+        <router-link to="/users" class="nav-link text-white">
           <i class="bi bi-people"></i> Users
         </router-link>
       </li>

@@ -146,8 +146,16 @@
       :subject="subject"
       @updated="onSubjectUpdated"
       @deleted="onSubjectDeleted"
-      @error="showFlashMessage"
-    />
+      @error="showFlashMessage">
+    </EditSubjectModal>
+
+    <!-- Edit Chapter Modal -->
+    <EditChapterModal
+      ref="editChapterModal"
+      :chapter="selectedChapter"
+      @updated="onChapterUpdated"
+      @error="showFlashMessage">
+    </EditChapterModal>
   </div>
 </template>
 
@@ -156,6 +164,7 @@ import axios from "axios";
 import Navbar from "@/components/navbar.vue";
 import Sidebar from "@/components/sidebar.vue";
 import EditSubjectModal from "@/components/EditSubjectModal.vue";
+import EditChapterModal from "@/components/EditChapterModal.vue";
 
 export default {
   name: "SubjectDetail",
@@ -163,6 +172,7 @@ export default {
     Sidebar,
     Navbar,
     EditSubjectModal,
+    EditChapterModal,
   },
   data() {
     return {
@@ -178,6 +188,7 @@ export default {
         description: "",
         difficulty_level: "",
       },
+      selectedChapter: null,
     };
   },
   methods: {
@@ -285,23 +296,43 @@ export default {
         this.showFlashMessage("Failed to delete subject", "danger");
       }
     },
+    async editChapter(chapterId) {
+      const chapterToEdit = this.chapters.find(
+        (ch) => ch.chapter_id === chapterId
+      );
+      this.selectedChapter = { ...chapterToEdit };
+
+      // Open the modal
+      if (this.$refs.editChapterModal?.open) {
+        this.$refs.editChapterModal.open();
+      }
+    },
 
     viewQuiz(chapterId) {
       // Navigate to quiz page
     },
 
-    editChapter(chapterId) {
-      // Navigate to edit chapter page
-    },
+    async onChapterUpdated(updatedChapter) {
+   const index = this.chapters.findIndex(
+    (ch) => ch.chapter_id === updatedChapter.chapter_id
+   );
+   if (index !== -1) {
+    this.chapters.splice(index, 1, updatedChapter);
+   }
 
-    deleteChapter(chapterId) {
-      // Delete chapter logic
-    },
+   // Close modal via bootstrap modal instance
+   if (this.$refs.editChapterModal?.modalInstance) {
+    this.$refs.editChapterModal.modalInstance.hide();
+   }
+
+   // Show flash message
+   this.showFlashMessage("Chapter details updated successfully");
   },
+
 
   mounted() {
     this.fetchSubjectDetails();
-  },
+  }
 };
 </script>
 

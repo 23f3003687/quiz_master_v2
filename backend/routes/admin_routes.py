@@ -1,7 +1,7 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from models import db , Subject, Chapter
+from models import db , Subject, Chapter, User
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/subjects', methods=['GET'])
@@ -162,3 +162,22 @@ def delete_subject(subject_id):
     db.session.delete(subject)
     db.session.commit()
     return jsonify({'message': 'Subject deleted successfully'}) , 200
+
+@admin_bp.route('/users', methods=['GET'])
+@jwt_required()
+def get_all_users():
+    users = User.query.all()
+    user_list = [
+        {
+            "user_id": user.user_id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "qualification": user.qualification,
+            "dob": user.dob.strftime('%Y-%m-%d'),
+            "is_admin": user.is_admin,
+            "last_login": user.last_login.strftime('%Y-%m-%d %H:%M:%S') if user.last_login else None,
+            "registered_on": user.registered_on.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for user in users
+    ]
+    return jsonify(user_list), 200

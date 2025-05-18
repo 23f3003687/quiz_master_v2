@@ -1,22 +1,40 @@
 <template>
-  <div class="auth-form">
-    <h2>Login</h2>
-    <form @submit.prevent="login">
-      <div>
-        <label for="email">Email:</label>
-        <input type="email" v-model="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" v-model="password" id="password" required />
-      </div>
-      <button type="submit">Login</button>
-    </form>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    <p>
-      Don't have an account?
-      <router-link to="/register">Register here</router-link>
-    </p>
+  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-sm p-4 w-100" style="max-width: 400px;">
+      <h3 class="text-center mb-4">Login to Your Account</h3>
+      <form @submit.prevent="login">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input
+            type="email"
+            v-model="email"
+            class="form-control"
+            id="email"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            v-model="password"
+            class="form-control"
+            id="password"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+      <p v-if="errorMessage" class="text-danger text-center mt-3">
+        {{ errorMessage }}
+      </p>
+      <p class="text-center mt-3">
+        <small>
+          Don't have an account?
+          <router-link to="/register">Register here</router-link>
+        </small>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -39,29 +57,26 @@ export default {
           email: email.value,
           password: password.value,
         });
-        localStorage.setItem("access_token", response.data.access_token); // Save JWT token in localStorage
-        router.push("/dashboard"); // Redirect to dashboard after successful login
+
+        localStorage.setItem("access_token", response.data.access_token);
+       
+        router.push("/dashboard");
+        
       } catch (error) {
         errorMessage.value = "Invalid credentials, please try again.";
       }
     };
 
-    return { email, password, errorMessage, login };
+    return {
+      email,
+      password,
+      errorMessage,
+      login,
+    };
   },
 };
 </script>
 
 <style scoped>
-/* Add your styles here */
-.auth-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-button {
-  margin-top: 10px;
-}
+/* Optional: additional custom styles */
 </style>

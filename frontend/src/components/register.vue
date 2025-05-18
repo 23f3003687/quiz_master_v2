@@ -1,38 +1,70 @@
 <template>
-  <div class="auth-form">
-    <h2>Register</h2>
-    <form @submit.prevent="register">
-      <div>
-        <label for="email">Email:</label>
-        <input type="email" v-model="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" v-model="password" id="password" required />
-      </div>
-      <div>
-        <label for="full_name">Full Name:</label>
-        <input type="text" v-model="full_name" id="full_name" required />
-      </div>
-      <div>
-        <label for="dob">Date of Birth:</label>
-        <input type="date" v-model="dob" id="dob" required />
-      </div>
-      <div>
-        <label for="dob">Qualification:</label>
-        <input
-          type="text"
-          v-model="qualification"
-          id="qualification"
-          required
-        />
-      </div>
-      <button type="submit">Register</button>
-    </form>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    <p>
-      Already have an account? <router-link to="/login">Login here</router-link>
-    </p>
+  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-sm p-4 w-100" style="max-width: 450px;">
+      <h3 class="text-center mb-4">Create an Account</h3>
+      <form @submit.prevent="register">
+        <div class="mb-3">
+          <label for="full_name" class="form-label">Full Name</label>
+          <input
+            type="text"
+            v-model="full_name"
+            class="form-control"
+            id="full_name"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input
+            type="email"
+            v-model="email"
+            class="form-control"
+            id="email"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            v-model="password"
+            class="form-control"
+            id="password"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="dob" class="form-label">Date of Birth</label>
+          <input
+            type="date"
+            v-model="dob"
+            class="form-control"
+            id="dob"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="qualification" class="form-label">Qualification</label>
+          <input
+            type="text"
+            v-model="qualification"
+            class="form-control"
+            id="qualification"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-success w-100">Register</button>
+      </form>
+      <p v-if="errorMessage" class="text-danger text-center mt-3">
+        {{ errorMessage }}
+      </p>
+      <p class="text-center mt-3">
+        <small>
+          Already have an account?
+          <router-link to="/login">Login here</router-link>
+        </small>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -61,7 +93,7 @@ export default {
           dob: dob.value,
           qualification: qualification.value,
         });
-        router.push("/login"); // Redirect to login after successful registration
+        router.push("/login");
       } catch (error) {
         errorMessage.value = "Registration failed. Please try again.";
       }
@@ -81,16 +113,5 @@ export default {
 </script>
 
 <style scoped>
-/* Add your styles here */
-.auth-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-button {
-  margin-top: 10px;
-}
+/* Optional: custom tweaks */
 </style>

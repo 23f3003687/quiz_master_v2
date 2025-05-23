@@ -87,33 +87,6 @@ def get_subject_details(subject_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@admin_bp.route('/chapters', methods=['POST'])
-@jwt_required()
-def create_chapter():
-    data = request.get_json()
-    subject_id = data.get('subject_id')
-    name = data.get('name')
-    description = data.get('description')
-    difficulty_level = data.get('difficulty_level')
-
-    if not subject_id or not name or not difficulty_level:
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    new_chapter = Chapter(
-        subject_id=subject_id,
-        name=name,
-        description=description,
-        difficulty_level=difficulty_level
-    )
-    db.session.add(new_chapter)
-    db.session.commit()
-
-    return jsonify({
-        'chapter_id': new_chapter.chapter_id,
-        'name': new_chapter.name,
-        'description': new_chapter.description,
-        'difficulty_level': new_chapter.difficulty_level
-    }), 201
 
 @admin_bp.route('/subject/<int:subject_id>', methods=['PUT'])
 @jwt_required()
@@ -162,6 +135,76 @@ def delete_subject(subject_id):
     db.session.delete(subject)
     db.session.commit()
     return jsonify({'message': 'Subject deleted successfully'}) , 200
+
+@admin_bp.route('/chapters', methods=['POST'])
+@jwt_required()
+def create_chapter():
+    data = request.get_json()
+    subject_id = data.get('subject_id')
+    name = data.get('name')
+    description = data.get('description')
+    difficulty_level = data.get('difficulty_level')
+
+    if not subject_id or not name or not difficulty_level:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    new_chapter = Chapter(
+        subject_id=subject_id,
+        name=name,
+        description=description,
+        difficulty_level=difficulty_level
+    )
+    db.session.add(new_chapter)
+    db.session.commit()
+
+    return jsonify({
+        'chapter_id': new_chapter.chapter_id,
+        'name': new_chapter.name,
+        'description': new_chapter.description,
+        'difficulty_level': new_chapter.difficulty_level
+    }), 201
+
+@admin_bp.route('/admin/chapters/<int:chapter_id>', methods=['PUT'])
+@jwt_required()
+def update_chapter(chapter_id):
+    chapter = Chapter.query.get(chapter_id)
+    if not chapter:
+        return jsonify({"error": "Chapter not found"}), 404
+
+    data = request.get_json()
+
+    # Update fields if provided
+    chapter.name = data.get('name', chapter.name)
+    chapter.description = data.get('description', chapter.description)
+    chapter.difficulty_level = data.get('difficulty_level', chapter.difficulty_level)
+
+    try:
+        db.session.commit()
+        return jsonify({
+            "chapter_id": chapter.chapter_id,
+            "name": chapter.name,
+            "description": chapter.description,
+            "difficulty_level": chapter.difficulty_level,
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update chapter"}), 500
+
+@admin_bp.route('/admin/chapters/<int:chapter_id>', methods=['DELETE'])
+@jwt_required()
+def delete_chapter(chapter_id):
+    chapter = Chapter.query.get(chapter_id)
+    if not chapter:
+        return jsonify({"error": "Chapter not found"}), 404
+
+    try:
+        db.session.delete(chapter)
+        db.session.commit()
+        return jsonify({"message": "Chapter deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to delete chapter"}), 500
+
 
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()

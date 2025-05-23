@@ -11,9 +11,7 @@
       <div class="modal-content">
         <form @submit.prevent="submitEdit">
           <div class="modal-header">
-            <h5 class="modal-title" id="editChapterModalLabel">
-              Edit Chapter
-            </h5>
+            <h5 class="modal-title" id="editChapterModalLabel">Edit Chapter</h5>
             <button
               type="button"
               class="btn-close"
@@ -23,6 +21,10 @@
           </div>
 
           <div class="modal-body">
+            <div v-if="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
             <div class="mb-3">
               <label for="chapterName" class="form-label">Chapter Name</label>
               <input
@@ -35,9 +37,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="chapterDescription" class="form-label"
-                >Description</label
-              >
+              <label for="chapterDescription" class="form-label">Description</label>
               <textarea
                 id="chapterDescription"
                 v-model="editedChapter.description"
@@ -47,9 +47,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="difficultyLevel" class="form-label"
-                >Difficulty Level</label
-              >
+              <label for="difficultyLevel" class="form-label">Difficulty Level</label>
               <select
                 id="difficultyLevel"
                 v-model="editedChapter.difficulty_level"
@@ -65,14 +63,11 @@
           </div>
 
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="hide"
-            >
+            <button type="button" class="btn btn-secondary" @click="hide">
               Cancel
             </button>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" :disabled="loading">
+              <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
               Save Changes
             </button>
           </div>
@@ -90,7 +85,7 @@ export default {
   props: {
     chapter: {
       type: Object,
-      required: true,
+      default: () => ({}),
     },
   },
   data() {
@@ -102,21 +97,26 @@ export default {
         difficulty_level: "",
       },
       modalInstance: null,
+      loading: false,
+      errorMessage: "",
     };
   },
   watch: {
     chapter: {
       immediate: true,
       handler(newChapter) {
-        // Deep clone the passed chapter to avoid modifying prop directly
         this.editedChapter = { ...newChapter };
       },
     },
   },
   methods: {
     open() {
+      // Reset form data
+      this.editedChapter = { ...this.chapter };
+      this.errorMessage = "";
+      this.loading = false;
+
       if (!this.modalInstance) {
-        // Initialize Bootstrap modal instance
         this.modalInstance = new bootstrap.Modal(this.$refs.modal);
       }
       this.modalInstance.show();
@@ -127,6 +127,8 @@ export default {
       }
     },
     async submitEdit() {
+      this.loading = true;
+      this.errorMessage = "";
       try {
         const token = localStorage.getItem("access_token");
         const response = await axios.put(
@@ -144,17 +146,15 @@ export default {
           }
         );
 
-        // Emit the updated chapter back to parent
         this.$emit("updated", response.data);
-
-        // Hide modal after success
         this.hide();
       } catch (error) {
         console.error("Failed to update chapter:", error);
-        this.$emit(
-          "error",
-          error.response?.data?.message || "Failed to update chapter"
-        );
+        this.errorMessage =
+          error.response?.data?.message || "Failed to update chapter";
+        this.$emit("error", this.errorMessage);
+      } finally {
+        this.loading = false;
       }
     },
   },
@@ -162,5 +162,5 @@ export default {
 </script>
 
 <style scoped>
-/* Add any custom styling if needed */
+/* Optional scoped custom styling */
 </style>

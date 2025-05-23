@@ -146,7 +146,8 @@
       :subject="subject"
       @updated="onSubjectUpdated"
       @deleted="onSubjectDeleted"
-      @error="showFlashMessage">
+      @error="showFlashMessage"
+    >
     </EditSubjectModal>
 
     <!-- Edit Chapter Modal -->
@@ -154,7 +155,8 @@
       ref="editChapterModal"
       :chapter="selectedChapter"
       @updated="onChapterUpdated"
-      @error="showFlashMessage">
+      @error="showFlashMessage"
+    >
     </EditChapterModal>
   </div>
 </template>
@@ -296,6 +298,7 @@ export default {
         this.showFlashMessage("Failed to delete subject", "danger");
       }
     },
+
     async editChapter(chapterId) {
       const chapterToEdit = this.chapters.find(
         (ch) => ch.chapter_id === chapterId
@@ -313,26 +316,50 @@ export default {
     },
 
     async onChapterUpdated(updatedChapter) {
-   const index = this.chapters.findIndex(
-    (ch) => ch.chapter_id === updatedChapter.chapter_id
-   );
-   if (index !== -1) {
-    this.chapters.splice(index, 1, updatedChapter);
-   }
+      const index = this.chapters.findIndex(
+        (ch) => ch.chapter_id === updatedChapter.chapter_id
+      );
+      if (index !== -1) {
+        this.chapters.splice(index, 1, updatedChapter);
+      }
 
-   // Close modal via bootstrap modal instance
-   if (this.$refs.editChapterModal?.modalInstance) {
-    this.$refs.editChapterModal.modalInstance.hide();
-   }
+      // Close modal via bootstrap modal instance
+      if (this.$refs.editChapterModal?.modalInstance) {
+        this.$refs.editChapterModal.modalInstance.hide();
+      }
 
-   // Show flash message
-   this.showFlashMessage("Chapter details updated successfully");
+      // Show flash message
+      this.showFlashMessage("Chapter details updated successfully");
+    },
+
+    async deleteChapter(chapterId) {
+      try {
+        const confirmed = confirm(
+          "Are you sure you want to delete this chapter?"
+        );
+        if (!confirmed) return;
+
+        const token = localStorage.getItem("access_token");
+        await axios.delete(`http://localhost:5000/admin/chapter/${chapterId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        this.chapters = this.chapters.filter(
+          (ch) => ch.chapter_id !== chapterId
+        );
+
+        this.showFlashMessage("Chapter deleted successfully", "danger");
+      } catch (error) {
+        console.error("Failed to delete chapter:", error);
+        this.showFlashMessage("Failed to delete chapter", "danger");
+      }
+    },
   },
-
-
   mounted() {
     this.fetchSubjectDetails();
-  }
+  },
 };
 </script>
 

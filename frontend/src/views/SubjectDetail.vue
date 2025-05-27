@@ -340,7 +340,7 @@ export default {
         if (!confirmed) return;
 
         const token = localStorage.getItem("access_token");
-        await axios.delete(`http://localhost:5000/admin/chapter/${chapterId}`, {
+        await axios.delete(`http://localhost:5000/admin/chapters/${chapterId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

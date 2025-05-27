@@ -164,9 +164,12 @@ def create_chapter():
         'difficulty_level': new_chapter.difficulty_level
     }), 201
 
-@admin_bp.route('/admin/chapters/<int:chapter_id>', methods=['PUT'])
+@admin_bp.route('/chapters/<int:chapter_id>', methods=['PUT', 'OPTIONS'])
 @jwt_required()
 def update_chapter(chapter_id):
+    if request.method == 'OPTIONS':
+        return '', 200  # Respond to preflight request with 200 OK
+
     chapter = Chapter.query.get(chapter_id)
     if not chapter:
         return jsonify({"error": "Chapter not found"}), 404
@@ -190,7 +193,8 @@ def update_chapter(chapter_id):
         db.session.rollback()
         return jsonify({"error": "Failed to update chapter"}), 500
 
-@admin_bp.route('/admin/chapters/<int:chapter_id>', methods=['DELETE'])
+
+@admin_bp.route('/chapters/<int:chapter_id>', methods=['DELETE'])
 @jwt_required()
 def delete_chapter(chapter_id):
     chapter = Chapter.query.get(chapter_id)

@@ -132,7 +132,7 @@ export default {
       try {
         const token = localStorage.getItem("access_token");
         const response = await axios.put(
-          `http://localhost:5000/admin/chapter/${this.editedChapter.chapter_id}`,
+          `http://localhost:5000/admin/chapters/${this.editedChapter.chapter_id}`,
           {
             name: this.editedChapter.name,
             description: this.editedChapter.description,

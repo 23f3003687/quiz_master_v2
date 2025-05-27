@@ -37,7 +37,9 @@
             </div>
 
             <div class="mb-3">
-              <label for="chapterDescription" class="form-label">Description</label>
+              <label for="chapterDescription" class="form-label"
+                >Description</label
+              >
               <textarea
                 id="chapterDescription"
                 v-model="editedChapter.description"
@@ -47,7 +49,9 @@
             </div>
 
             <div class="mb-3">
-              <label for="difficultyLevel" class="form-label">Difficulty Level</label>
+              <label for="difficultyLevel" class="form-label"
+                >Difficulty Level</label
+              >
               <select
                 id="difficultyLevel"
                 v-model="editedChapter.difficulty_level"
@@ -67,7 +71,10 @@
               Cancel
             </button>
             <button type="submit" class="btn btn-primary" :disabled="loading">
-              <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+              <span
+                v-if="loading"
+                class="spinner-border spinner-border-sm me-2"
+              ></span>
               Save Changes
             </button>
           </div>

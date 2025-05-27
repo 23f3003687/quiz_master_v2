@@ -312,7 +312,7 @@ export default {
     },
 
     viewQuiz(chapterId) {
-      // Navigate to quiz page
+      this.$router.push({ name: "QuizList", params: { chapterId } });
     },
 
     async onChapterUpdated(updatedChapter) {
@@ -340,11 +340,14 @@ export default {
         if (!confirmed) return;
 
         const token = localStorage.getItem("access_token");
-        await axios.delete(`http://localhost:5000/admin/chapters/${chapterId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await axios.delete(
+          `http://localhost:5000/admin/chapters/${chapterId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         this.chapters = this.chapters.filter(
           (ch) => ch.chapter_id !== chapterId

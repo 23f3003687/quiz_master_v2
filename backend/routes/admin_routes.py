@@ -1,7 +1,8 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from models import db , Subject, Chapter, User
+from models import db , Subject, Chapter, User, Quiz
+from datetime import datetime
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/subjects', methods=['GET'])
@@ -208,6 +209,67 @@ def delete_chapter(chapter_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to delete chapter"}), 500
+    
+@admin_bp.route('/chapters/<int:chapter_id>/quizzes', methods=['GET'])
+@jwt_required()
+def get_quizzes_by_chapter(chapter_id):
+    quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+    quiz_list = []
+    for q in quizzes:
+        quiz_list.append({
+            "quiz_id": q.quiz_id,
+            "name": q.name,
+            "date_of_quiz": q.date_of_quiz.isoformat(),  # date as string
+            "time_duration": q.time_duration,
+            "total_marks": q.total_marks,
+            "remarks": q.remarks,
+            "is_active": q.is_active,
+            "num_questions": q.num_questions,
+            "tags": q.tags,
+        })
+    return jsonify(quiz_list), 200
+
+@admin_bp.route('/chapters/<int:chapter_id>/quizzes', methods=['POST'])
+@jwt_required()
+def create_quiz_for_chapter(chapter_id):
+    data = request.get_json()
+
+    # Validate required fields
+    required_fields = ['name', 'date_of_quiz', 'time_duration', 'total_marks', 'num_questions']
+    if not all(field in data and data[field] for field in required_fields):
+        return jsonify({"message": "Missing required fields"}), 400
+
+    try:
+        new_quiz = Quiz(
+            chapter_id=chapter_id,
+            name=data['name'],
+            date_of_quiz=datetime.strptime(data['date_of_quiz'], "%Y-%m-%d").date(),
+            time_duration=data['time_duration'],
+            total_marks=data['total_marks'],
+            remarks=data.get('remarks', ''),
+            num_questions=data['num_questions'],
+            tags=data.get('tags', '')
+        )
+        db.session.add(new_quiz)
+        db.session.commit()
+
+        return jsonify({
+            "quiz_id": new_quiz.quiz_id,
+            "name": new_quiz.name,
+            "date_of_quiz": new_quiz.date_of_quiz.isoformat(),
+            "time_duration": new_quiz.time_duration,
+            "total_marks": new_quiz.total_marks,
+            "remarks": new_quiz.remarks,
+            "is_active": new_quiz.is_active,
+            "num_questions": new_quiz.num_questions,
+            "tags": new_quiz.tags,
+        }), 201
+
+    except Exception as e:
+        print("Error creating quiz:", e)
+        return jsonify({"message": "Failed to create quiz"}), 500
+
+
 
 
 @admin_bp.route('/users', methods=['GET'])

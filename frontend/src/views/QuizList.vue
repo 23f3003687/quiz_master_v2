@@ -1,146 +1,195 @@
 <template>
-  <div>
-    <h3>Quizzes</h3>
+  <div class="d-flex vh-100 overflow-hidden">
+    <!-- Sidebar on the left -->
+    <Sidebar class="bg-dark text-white" />
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div></div>
-      <!-- empty placeholder for left -->
-      <button class="btn btn-success" @click="showCreateForm = true">
-        Create Quiz
-      </button>
-    </div>
+    <!-- Main content on the right -->
+    <div class="flex-grow-1 d-flex flex-column">
+      <!-- Navbar at the top -->
+      <Navbar class="bg-white shadow-sm" />
 
-    <div v-if="loading" class="spinner-border"></div>
-    <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div class="container mt-4">
+        <div class="container mt-2 pt-5 flex-grow-1 overflow-auto">
+          <h3 class="fw-bold">📋 Quizzes for {{ chapterName }}</h3>
 
-    <!-- Create Quiz Form -->
-    <div v-if="showCreateForm" class="card mb-4 p-3 border">
-      <h5>Create New Quiz</h5>
-      <form @submit.prevent="submitQuiz">
-        <div class="mb-2">
-          <label class="form-label">Name</label>
-          <input
-            v-model="Quiz.name"
-            type="text"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Date of Quiz</label>
-          <input
-            v-model="Quiz.date_of_quiz"
-            type="date"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Duration (minutes)</label>
-          <input
-            v-model="Quiz.time_duration"
-            type="text"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Total Marks</label>
-          <input
-            v-model.number="Quiz.total_marks"
-            type="number"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Questions</label>
-          <input
-            v-model="Quiz.num_questions"
-            type="text"
-            class="form-control"
-            required
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Remarks</label>
-          <input v-model="Quiz.remarks" type="text" class="form-control" />
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Tags (comma separated)</label>
-          <input v-model="Quiz.tags" type="text" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm ms-2"
-          @click="cancelCreate"
-        >
-          Cancel
-        </button>
-      </form>
-    </div>
-
-    <!-- Quizzes Table -->
-    <table v-if="quizzes.length" class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Date</th>
-          <th>Duration</th>
-          <th>Total Marks</th>
-          <th>Questions</th>
-          <th>Remarks</th>
-          <th>Tags</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="quiz in quizzes" :key="quiz.quiz_id">
-          <td>{{ quiz.name }}</td>
-          <td>{{ quiz.date_of_quiz }}</td>
-          <td>{{ quiz.time_duration }}</td>
-          <td>{{ quiz.total_marks }}</td>
-          <td>{{ quiz.num_questions }}</td>
-          <td>{{ quiz.remarks }}</td>
-          <td>{{ quiz.tags }}</td>
-          <td>
-            <button class="btn btn-primary btn-sm" @click="$emit('edit', quiz)">
-              Edit
+          <!-- Align Create Quiz button to the left -->
+          <div class="row mb-2">
+          <div class="col-auto">
+            <button class="btn btn-success" @click="showCreateForm = true">
+              + Create Quiz
             </button>
-            <button
-              class="btn btn-danger btn-sm"
-              @click="$emit('delete', quiz.quiz_id)"
-            >
-              Delete
-            </button>
-            <button
-              class="btn btn-info btn-sm"
-              @click="$emit('view-questions', quiz.quiz_id)"
-            >
-              View Questions
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+          </div>
+        </div>
 
-    <!-- Show message if no quizzes -->
-    <div v-else class="alert alert-info">
-      No quizzes added yet for this chapter.
+        <div v-if="loading" class="spinner-border text-primary"></div>
+        <div v-if="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Create Quiz Form -->
+        <div v-if="showCreateForm" class="card shadow mb-4">
+          <div class="card-header bg-light fw-semibold">Create New Quiz</div>
+          <div class="card-body">
+            <form @submit.prevent="submitQuiz">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Name</label>
+                  <input
+                    v-model="Quiz.name"
+                    type="text"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Date of Quiz</label>
+                  <input
+                    v-model="Quiz.date_of_quiz"
+                    type="date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Duration (minutes)</label>
+                  <input
+                    v-model="Quiz.time_duration"
+                    type="text"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Total Marks</label>
+                  <input
+                    v-model.number="Quiz.total_marks"
+                    type="number"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Questions</label>
+                  <input
+                    v-model="Quiz.num_questions"
+                    type="text"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Remarks</label>
+                  <input
+                    v-model="Quiz.remarks"
+                    type="text"
+                    class="form-control"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Tags (comma separated)</label>
+                  <input v-model="Quiz.tags" type="text" class="form-control" />
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm ms-2"
+                  @click="cancelCreate"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Quizzes Table -->
+        <div v-if="quizzes.length" class="card shadow">
+          <div class="card-body p-0">
+            <table class="table table-hover  table-bordered table-striped mb-0">
+              <thead class="table-dark text-center align-middle">
+                <tr>
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Duration</th>
+                  <th>Total Marks</th>
+                  <th>Questions</th>
+                  <th>Remarks</th>
+                  <th>Tags</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="quiz in quizzes" :key="quiz.quiz_id" class="text-center align-middle">
+                  <td>{{ quiz.name }}</td>
+                  <td>{{ quiz.date_of_quiz }}</td>
+                  <td>{{ quiz.time_duration }}</td>
+                  <td>{{ quiz.total_marks }}</td>
+                  <td>{{ quiz.num_questions }}</td>
+                  <td>{{ quiz.remarks }}</td>
+                  <td>
+                    <span
+                      v-for="tag in quiz.tags.split(',')"
+                      :key="tag"
+                      class="badge bg-primary me-1"
+                    >
+                      {{ tag.trim() }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button
+                        class="btn btn-sm btn-primary"
+                        @click="$emit('edit', quiz)"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-sm btn-danger"
+                        @click="$emit('delete', quiz.quiz_id)"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        class="btn btn-sm btn-info text-white"
+                        @click="$emit('view-questions', quiz.quiz_id)"
+                      >
+                        View Questions
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Show message if no quizzes -->
+        <div v-else class="alert alert-info mt-4">
+          No quizzes added yet for this chapter.
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Navbar from "@/components/navbar.vue";
+import Sidebar from "@/components/sidebar.vue";
 
 export default {
+  components: {
+    Sidebar,
+    Navbar,
+  },
   props: {
-    chapterId: {
-      type: Number,
-      required: true,
-    },
+    chapterId: Number,
+    chapterName: String,
   },
   data() {
     return {

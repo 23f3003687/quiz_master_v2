@@ -27,7 +27,7 @@ const routes = [
     path: "/admin/chapter/:chapterId/quizzes",
     name: "QuizList",
     component: QuizList,
-    props: (route) => ({ chapterId: Number(route.params.chapterId) }),
+    props: (route) => ({ chapterId: Number(route.params.chapterId),chapterName: route.params.chapterName }),
   },
 ];
 

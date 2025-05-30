@@ -19,7 +19,7 @@
       <!-- Page content below navbar -->
       <div class="container mt-4 pt-5 flex-grow-1 overflow-auto">
         <!-- Subject Header -->
-        <div class="mb-4">
+        <div class="mb-6">
           <h2 class="fw-bold">{{ subject.name }}</h2>
           <p class="text-muted">{{ subject.description }}</p>
           <div class="d-flex gap-2 mt-2">
@@ -87,7 +87,7 @@
 
         <!-- Chapter List Table -->
         <div class="card shadow-sm">
-          <div class="card-header bg-primary text-white fw-semibold">
+          <div class="card-header bg-dark text-white fw-semibold">
             Chapters
           </div>
           <div class="card-body p-0">

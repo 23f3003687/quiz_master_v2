@@ -23,7 +23,7 @@
             required
           />
         </div>
-        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <button type="submit" class="btn btn-success w-100">Login</button>
       </form>
       <p v-if="errorMessage" class="text-danger text-center mt-3">
         {{ errorMessage }}

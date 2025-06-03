@@ -298,6 +298,21 @@ def update_quiz(quiz_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
+@admin_bp.route('/quizzes/<int:quiz_id>', methods=['DELETE'])
+@jwt_required()
+def delete_quiz(quiz_id):
+    quiz = Quiz.query.get(quiz_id)
+    if not quiz:
+        return jsonify({"error": "Quiz not found"}), 404
+
+    try:
+        db.session.delete(quiz)
+        db.session.commit()
+        return jsonify({"message": f"Quiz {quiz_id} deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_all_users():

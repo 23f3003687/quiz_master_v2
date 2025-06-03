@@ -87,9 +87,7 @@
 
         <!-- Chapter List Table -->
         <div class="card shadow-sm">
-          <div class="card-header bg-dark text-white fw-semibold">
-            Chapters
-          </div>
+          <div class="card-header bg-dark text-white fw-semibold">Chapters</div>
           <div class="card-body p-0">
             <table class="table table-hover m-0">
               <thead class="table-light">
@@ -239,9 +237,27 @@ export default {
         this.chapters.push(data);
         this.showCreateChapterForm = false;
         this.newChapter = { name: "", description: "", difficulty_level: "" };
+
+        // Show success flash message
+        this.flashMessage = data.message || "Chapter created successfully!";
+        this.flashType = "success";
+        this.showFlash = true;
+
+        // Hide flash message after 3 seconds
+        setTimeout(() => {
+          this.showFlash = false;
+        }, 3000);
       } catch (error) {
         console.error(error);
         alert("Error creating chapter");
+
+        // Optionally, show error flash message as well
+        this.flashMessage = "Failed to create chapter.";
+        this.flashType = "danger";
+        this.showFlash = true;
+        setTimeout(() => {
+          this.showFlash = false;
+        }, 3000);
       }
     },
 

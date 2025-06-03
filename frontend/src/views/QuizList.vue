@@ -8,6 +8,21 @@
       <!-- Navbar at the top -->
       <Navbar class="bg-white shadow-sm" />
 
+      <!-- Flash Message -->
+      <div
+        v-if="showFlash"
+        :class="`alert alert-${flashType} alert-dismissible fade show`"
+        role="alert"
+      >
+        {{ flashMessage }}
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          @click="showFlash = false"
+        ></button>
+      </div>
+
       <div class="container mt-4">
         <div class="container mt-2 pt-5 flex-grow-1 overflow-auto">
           <h3 class="fw-bold">📋 Quizzes for {{ chapterName }}</h3>
@@ -222,6 +237,9 @@ export default {
       selectedQuizQuestions: [],
       selectedQuizId: null,
       showQuestionsModal: false,
+      flashMessage: "",
+      flashType: "", // 'success' or 'danger'
+      showFlash: false,
     };
   },
   watch: {
@@ -280,8 +298,17 @@ export default {
         );
         this.quizzes.push(response.data);
         this.cancelCreate();
+        // Show success flash message
+        this.flashMessage = "Quiz created successfully!";
+        this.flashType = "success";
+        this.showFlash = true;
+        setTimeout(() => (this.showFlash = false), 3000);
       } catch (err) {
-        alert("Failed to create quiz.");
+        // Show error flash message
+        this.flashMessage = "Failed to create quiz.";
+        this.flashType = "danger";
+        this.showFlash = true;
+        setTimeout(() => (this.showFlash = false), 3000);
         console.error(err);
       }
     },
@@ -298,8 +325,16 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.quizzes = this.quizzes.filter((q) => q.quiz_id !== quizId);
+        // Success flash message on delete
+        this.flashMessage = "Quiz deleted successfully!";
+        this.flashType = "success";
+        this.showFlash = true;
+        setTimeout(() => (this.showFlash = false), 3000);
       } catch (err) {
-        alert("Failed to delete quiz.");
+        this.flashMessage = "Failed to delete quiz.";
+        this.flashType = "danger";
+        this.showFlash = true;
+        setTimeout(() => (this.showFlash = false), 3000);
         console.error(err);
       }
     },

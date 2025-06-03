@@ -11,6 +11,19 @@
       <!-- Navbar -->
       <Navbar class="bg-white shadow-sm position-sticky top-0 z-3" />
 
+      <div
+        v-if="showFlash"
+        :class="`alert alert-${flashType} alert-dismissible fade show`"
+        role="alert"
+      >
+        {{ flashMessage }}
+        <button
+          type="button"
+          class="btn-close"
+          @click="showFlash = false"
+        ></button>
+      </div>
+
       <!-- Scrollable content -->
       <div class="flex-grow-1 overflow-auto px-4 py-4">
         <h3 class="fw-bold">❓ Questions for {{ quizName }}</h3>
@@ -219,6 +232,9 @@ export default {
         difficulty: "",
         explanation: "",
       },
+      flashMessage: "",
+      flashType: "", // 'success', 'danger', 'info', etc.
+      showFlash: false,
     };
   },
   methods: {
@@ -238,7 +254,7 @@ export default {
     async submitQuestion() {
       try {
         const token = localStorage.getItem("access_token");
-        await axios.post(
+        const response = await axios.post(
           `http://localhost:5000/admin/quizzes/${this.quizId}/questions`,
           JSON.stringify(this.questionForm),
           {
@@ -250,9 +266,25 @@ export default {
         );
         this.showCreateForm = false;
         this.resetForm();
-        await this.fetchQuestions(); // <-- Fetch fresh questions list here
+
+        // Show success flash message
+        this.flashMessage =
+          response.data.message || "Question created successfully!";
+        this.flashType = "success";
+        this.showFlash = true;
+        // Refresh the question list
+        await this.fetchQuestions();
+
+        setTimeout(() => {
+          this.showFlash = false;
+        }, 3000);
       } catch (error) {
-        alert("Failed to create question.");
+        this.flashMessage = "Failed to create question.";
+        this.flashType = "danger";
+        this.showFlash = true;
+        setTimeout(() => {
+          this.showFlash = false;
+        }, 3000);
         console.error(
           "Failed to create question:",
           error.response?.data || error.message
@@ -289,8 +321,19 @@ export default {
         this.questions = this.questions.filter(
           (q) => q.question_id !== questionId
         );
+        this.flashMessage = "Question deleted successfully!";
+        this.flashType = "success";
+        this.showFlash = true;
+        setTimeout(() => {
+          this.showFlash = false;
+        }, 3000);
       } catch (error) {
-        alert("Failed to delete question.");
+        this.flashMessage = "Failed to delete question.";
+        this.flashType = "danger";
+        this.showFlash = true;
+        setTimeout(() => {
+          this.showFlash = false;
+        }, 3000);
         console.error(
           "Failed to delete question:",
           error.response?.data || error.message

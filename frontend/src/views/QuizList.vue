@@ -13,12 +13,12 @@
           <h3 class="fw-bold">📋 Quizzes for {{ chapterName }}</h3>
 
           <!-- Align Create Quiz button to the left -->
-          <div class="row mb-2">
-          <div class="col-auto">
-            <button class="btn btn-success" @click="showCreateForm = true">
-              + Create Quiz
-            </button>
-          </div>
+          <div class="row mb-4">
+            <div class="col-auto">
+              <button class="btn btn-success" @click="showCreateForm = true">
+                + Create Quiz
+              </button>
+            </div>
           </div>
         </div>
 
@@ -110,7 +110,7 @@
         <!-- Quizzes Table -->
         <div v-if="quizzes.length" class="card shadow">
           <div class="card-body p-0">
-            <table class="table table-hover  table-bordered table-striped mb-0">
+            <table class="table table-hover table-bordered table-striped mb-0">
               <thead class="table-dark text-center align-middle">
                 <tr>
                   <th>Name</th>
@@ -124,7 +124,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="quiz in quizzes" :key="quiz.quiz_id" class="text-center align-middle">
+                <tr
+                  v-for="quiz in quizzes"
+                  :key="quiz.quiz_id"
+                  class="text-center align-middle"
+                >
                   <td>{{ quiz.name }}</td>
                   <td>{{ quiz.date_of_quiz }}</td>
                   <td>{{ quiz.time_duration }}</td>
@@ -144,19 +148,19 @@
                     <div class="btn-group">
                       <button
                         class="btn btn-sm btn-primary"
-                        @click="$emit('edit', quiz)"
+                        @click="openEditModal(quiz)"
                       >
                         Edit
                       </button>
                       <button
                         class="btn btn-sm btn-danger"
-                        @click="$emit('delete', quiz.quiz_id)"
+                        @click="deleteQuiz(quiz.quiz_id)"
                       >
                         Delete
                       </button>
                       <button
                         class="btn btn-sm btn-info text-white"
-                        @click="$emit('view-questions', quiz.quiz_id)"
+                        @click="viewQuestions(quiz.quiz_id)"
                       >
                         View Questions
                       </button>
@@ -174,6 +178,12 @@
         </div>
       </div>
     </div>
+    <EditQuizModal
+      v-if="showEditModal"
+      :quiz="editQuiz"
+      @close="showEditModal = false"
+      @updated="fetchQuizzes"
+    />
   </div>
 </template>
 
@@ -181,11 +191,12 @@
 import axios from "axios";
 import Navbar from "@/components/navbar.vue";
 import Sidebar from "@/components/sidebar.vue";
-
+import EditQuizModal from "@/components/EditQuizModal.vue";
 export default {
   components: {
     Sidebar,
     Navbar,
+    EditQuizModal,
   },
   props: {
     chapterId: Number,
@@ -206,6 +217,8 @@ export default {
         remarks: "",
         tags: "",
       },
+      editQuiz: null,
+      showEditModal: false,
     };
   },
   watch: {
@@ -268,6 +281,28 @@ export default {
         alert("Failed to create quiz.");
         console.error(err);
       }
+    },
+    openEditModal(quiz) {
+      this.editQuiz = { ...quiz }; // Clone to avoid 2-way binding issues
+      this.showEditModal = true;
+    },
+
+    async deleteQuiz(quizId) {
+      if (!confirm("Are you sure you want to delete this quiz?")) return;
+      try {
+        const token = localStorage.getItem("access_token");
+        await axios.delete(`http://localhost:5000/admin/quizzes/${quizId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.quizzes = this.quizzes.filter((q) => q.quiz_id !== quizId);
+      } catch (err) {
+        alert("Failed to delete quiz.");
+        console.error(err);
+      }
+    },
+
+    viewQuestions(quizId) {
+      this.$emit("view-questions", quizId);
     },
   },
 };

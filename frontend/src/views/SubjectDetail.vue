@@ -22,7 +22,7 @@
         <div class="mb-6">
           <h2 class="fw-bold">{{ subject.name }}</h2>
           <p class="text-muted">{{ subject.description }}</p>
-          <div class="d-flex gap-2 mt-2">
+          <div class="d-flex gap-2 mt-2 mb-2">
             <button
               class="btn btn-outline-primary"
               @click="$refs.editModal.open()"

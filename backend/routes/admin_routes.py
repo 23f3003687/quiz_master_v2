@@ -268,10 +268,36 @@ def create_quiz_for_chapter(chapter_id):
     except Exception as e:
         print("Error creating quiz:", e)
         return jsonify({"message": "Failed to create quiz"}), 500
+    
+@admin_bp.route('/quizzes/<int:quiz_id>', methods=['PUT'])
+@jwt_required()
+def update_quiz(quiz_id):
+    
+    quiz = Quiz.query.get(quiz_id)
+    if not quiz:
+        return jsonify({"error": "Quiz not found"}), 404
 
+    data = request.get_json()
 
+    try:
+        quiz.name = data.get('name', quiz.name)
 
+        date_str = data.get('date_of_quiz')
+        if date_str:
+            quiz.date_of_quiz = datetime.strptime(date_str, "%Y-%m-%d").date()
 
+        quiz.time_duration = data.get('time_duration', quiz.time_duration)
+        quiz.total_marks = data.get('total_marks', quiz.total_marks)
+        quiz.num_questions = data.get('num_questions', quiz.num_questions)
+        quiz.remarks = data.get('remarks', quiz.remarks)
+        quiz.tags = data.get('tags', quiz.tags)
+
+        db.session.commit()
+        return jsonify({"message": "Quiz updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_all_users():

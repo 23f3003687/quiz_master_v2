@@ -29,6 +29,12 @@ const routes = [
     component: QuizList,
     props: (route) => ({ chapterId: Number(route.params.chapterId),chapterName: route.params.chapterName }),
   },
+  {
+    path: "/admin/quizzes/:quizId/questions",
+    name: "QuizQuestions",
+    component: () => import("@/views/QuestionList.vue"),
+    props: true,
+  },
 ];
 
 const router = createRouter({

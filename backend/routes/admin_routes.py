@@ -1,7 +1,7 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from models import db , Subject, Chapter, User, Quiz
+from models import db , Subject, Chapter, User, Quiz, Question
 from datetime import datetime
 admin_bp = Blueprint('admin', __name__)
 
@@ -312,6 +312,62 @@ def delete_quiz(quiz_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+@admin_bp.route('/quizzes/<int:quiz_id>/questions', methods=['POST'])
+@jwt_required()
+def create_question(quiz_id):
+    data = request.get_json()
+
+    required_fields = ['question_statement', 'option1', 'option2', 'option3', 'option4', 'correct_option']
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    question = Question(
+        quiz_id=quiz_id,
+        question_statement=data['question_statement'],
+        option1=data['option1'],
+        option2=data['option2'],
+        option3=data['option3'],
+        option4=data['option4'],
+        correct_option=data['correct_option'],
+        difficulty=data.get('difficulty'),
+        explanation=data.get('explanation')
+    )
+
+    db.session.add(question)
+    db.session.commit()
+
+    return jsonify({'message': 'Question created successfully'}), 201
+
+@admin_bp.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
+def get_quiz_questions(quiz_id):
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+    questions_list = []
+    for q in questions:
+        questions_list.append({
+            "question_id": q.question_id,
+            "question_statement": q.question_statement,
+            "option1": q.option1,
+            "option2": q.option2,
+            "option3": q.option3,
+            "option4": q.option4,
+            "correct_option": q.correct_option,
+            "difficulty": q.difficulty,
+            "explanation": q.explanation,
+            # Add any other fields needed
+        })
+    return jsonify(questions_list)
+
+@admin_bp.route('/questions/<int:question_id>', methods=['DELETE'])
+def delete_question(question_id):
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"error": "Question not found"}), 404
+
+    db.session.delete(question)
+    db.session.commit()
+    return jsonify({"message": "Question deleted successfully"})
+
     
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()

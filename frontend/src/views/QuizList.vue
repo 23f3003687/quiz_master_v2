@@ -87,7 +87,7 @@
                   />
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Tags (comma separated)</label>
+                  <label class="form-label">Tags</label>
                   <input v-model="Quiz.tags" type="text" class="form-control" />
                 </div>
               </div>
@@ -139,7 +139,7 @@
                     <span
                       v-for="tag in quiz.tags.split(',')"
                       :key="tag"
-                      class="badge bg-primary me-1"
+                      class="badge bg-warning me-1"
                     >
                       {{ tag.trim() }}
                     </span>
@@ -219,6 +219,9 @@ export default {
       },
       editQuiz: null,
       showEditModal: false,
+      selectedQuizQuestions: [],
+      selectedQuizId: null,
+      showQuestionsModal: false,
     };
   },
   watch: {
@@ -300,9 +303,8 @@ export default {
         console.error(err);
       }
     },
-
     viewQuestions(quizId) {
-      this.$emit("view-questions", quizId);
+      this.$router.push({ name: "QuizQuestions", params: { quizId } });
     },
   },
 };

@@ -11,8 +11,9 @@
       <!-- Flash Message -->
       <div
         v-if="showFlash"
-        :class="`alert alert-${flashType} alert-dismissible fade show`"
+        :class="`alert alert-${flashType} alert-dismissible fade show position-absolute top-0 start-50 translate-middle-x mt-3`"
         role="alert"
+        style="z-index: 1050; min-width: 300px"
       >
         {{ flashMessage }}
         <button
@@ -85,7 +86,7 @@
                   />
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Questions</label>
+                  <label class="form-label">No. of Questions</label>
                   <input
                     v-model="Quiz.num_questions"
                     type="text"
@@ -132,7 +133,7 @@
                   <th>Date</th>
                   <th>Duration</th>
                   <th>Total Marks</th>
-                  <th>Questions</th>
+                  <th>No. of Questions</th>
                   <th>Remarks</th>
                   <th>Tags</th>
                   <th>Actions</th>
@@ -198,6 +199,7 @@
       :quiz="editQuiz"
       @close="showEditModal = false"
       @updated="fetchQuizzes"
+      @flash="handleFlash"
     />
   </div>
 </template>
@@ -251,6 +253,16 @@ export default {
     },
   },
   methods: {
+    handleFlash({ message, type }) {
+      this.flashMessage = message;
+      this.flashType = type;
+      this.showFlash = false; // reset first
+      this.$nextTick(() => {
+        this.showFlash = true;
+        setTimeout(() => (this.showFlash = false), 3000);
+      });
+    },
+
     async fetchQuizzes() {
       if (!this.chapterId) return;
 
@@ -325,19 +337,26 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.quizzes = this.quizzes.filter((q) => q.quiz_id !== quizId);
-        // Success flash message on delete
+
         this.flashMessage = "Quiz deleted successfully!";
         this.flashType = "success";
-        this.showFlash = true;
-        setTimeout(() => (this.showFlash = false), 3000);
+        this.showFlash = false;
+        this.$nextTick(() => {
+          this.showFlash = true;
+          setTimeout(() => (this.showFlash = false), 3000);
+        });
       } catch (err) {
         this.flashMessage = "Failed to delete quiz.";
         this.flashType = "danger";
-        this.showFlash = true;
-        setTimeout(() => (this.showFlash = false), 3000);
+        this.showFlash = false;
+        this.$nextTick(() => {
+          this.showFlash = true;
+          setTimeout(() => (this.showFlash = false), 3000);
+        });
         console.error(err);
       }
     },
+
     viewQuestions(quizId) {
       this.$router.push({ name: "QuizQuestions", params: { quizId } });
     },

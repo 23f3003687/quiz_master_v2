@@ -358,6 +358,32 @@ def get_quiz_questions(quiz_id):
         })
     return jsonify(questions_list)
 
+@admin_bp.route('/questions/<int:question_id>', methods=['PUT'])
+@jwt_required()
+
+def update_question(question_id):
+    data = request.get_json()
+
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"error": "Question not found"}), 404
+
+    question.question_statement = data.get('question_statement', question.question_statement)
+    question.option1 = data.get('option1', question.option1)
+    question.option2 = data.get('option2', question.option2)
+    question.option3 = data.get('option3', question.option3)
+    question.option4 = data.get('option4', question.option4)
+    question.correct_option = data.get('correct_option', question.correct_option)
+    question.difficulty = data.get('difficulty', question.difficulty)
+    question.explanation = data.get('explanation', question.explanation)
+
+    try:
+        db.session.commit()
+        return jsonify({"message": "Question updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update question", "details": str(e)}), 500
+
 @admin_bp.route('/questions/<int:question_id>', methods=['DELETE'])
 def delete_question(question_id):
     question = Question.query.get(question_id)

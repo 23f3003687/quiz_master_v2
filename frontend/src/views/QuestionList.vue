@@ -202,6 +202,7 @@
       :question="editQuestion"
       @close="showEditModal = false"
       @updated="fetchQuestions"
+      @flash="handleFlash"
     />
   </div>
 </template>
@@ -238,6 +239,14 @@ export default {
     };
   },
   methods: {
+    handleFlash({ message, type }) {
+      this.flashMessage = message;
+      this.flashType = type;
+      this.showFlash = true;
+      setTimeout(() => {
+        this.showFlash = false;
+      }, 3000);
+    },
     async fetchQuestions() {
       try {
         const response = await axios.get(
@@ -339,6 +348,10 @@ export default {
           error.response?.data || error.message
         );
       }
+    },
+    openEditModal(question) {
+      this.editQuestion = { ...question };
+      this.showEditModal = true;
     },
   },
   mounted() {

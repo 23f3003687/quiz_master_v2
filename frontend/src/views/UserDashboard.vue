@@ -1,106 +1,140 @@
 <template>
-  <div class="container mt-4">
-    <!-- User Greeting -->
-    <div class="mb-4">
-      <h4>Hello, {{ user.name }}</h4>
-      <p>{{ currentDate }}</p>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>Qualification:</strong> {{ user.qualification }}</p>
-    </div>
+  <div class="d-flex vh-100 overflow-hidden">
+    <!-- Sidebar on the left -->
+    <UserSidebar class="bg-dark text-white" />
 
-    <!-- Cards -->
-    <div class="row mb-4">
-      <div class="col-md-4">
-        <div class="card text-white bg-primary shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">Performance</h5>
-            <p class="card-text">{{ performance }}%</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-info shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">Last Active</h5>
-            <p class="card-text">{{ lastActive }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card text-white bg-success shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">Quizzes Completed</h5>
-            <p class="card-text">{{ quizzesCompleted }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Main content on the right -->
+    <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px">
+      <!-- Navbar at the top -->
+      <UserNavbar class="bg-white shadow-sm" />
 
-    <!-- Student Activity -->
-    <div>
-      <h5>Recent Activity</h5>
-      <ul class="list-group">
-        <li
-          class="list-group-item"
-          v-for="activity in activityLog"
-          :key="activity.id"
-        >
-          {{ activity.timestamp }} — {{ activity.description }}
-        </li>
-      </ul>
+      <!-- Main Dashboard Content -->
+      <div class="container mt-4">
+        <!-- User Greeting -->
+        <div class="mb-4">
+          <h4>Hello, {{ user.full_name }}</h4>
+          <p>{{ greetingMessage }}</p>
+          <p><strong>Email:</strong> {{ user.email }}</p>
+          <p><strong>Qualification:</strong> {{ user.qualification }}</p>
+        </div>
+
+        <!-- Cards -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card text-white bg-primary shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Performance</h5>
+                <p class="card-text">{{ performance }}%</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-info shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Last Active</h5>
+                <p class="card-text">{{ lastActive }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card text-white bg-success shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Quizzes Completed</h5>
+                <p class="card-text">{{ quizzesCompleted }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Activity -->
+        <div>
+          <h5>Recent Activity</h5>
+          <ul class="list-group">
+            <li
+              class="list-group-item"
+              v-for="activity in activityLog"
+              :key="activity.id"
+            >
+              {{ activity.timestamp }} — {{ activity.description }}
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
+import UserSidebar from "@/components/UserSidebar.vue";
+import UserNavbar from "@/components/UserNavbar.vue";
 
 export default {
-  name: 'UserDashboard',
+  name: "UserDashboard",
+  components: {
+    UserSidebar,
+    UserNavbar,
+  },
   data() {
     return {
       user: {
-        name: '',
-        email: '',
-        qualification: '',
+        full_name: "",
+        email: "",
+        qualification: "",
       },
-      currentDate: '',
+      greetingMessage: "",
       performance: 0,
-      lastActive: '',
+      lastActive: "",
       quizzesCompleted: 0,
       activityLog: [],
-    }
+    };
   },
   mounted() {
-    this.currentDate = new Date().toLocaleDateString()
-    this.fetchUserData()
+    this.setGreeting();
+    this.fetchUserData();
   },
   methods: {
+    setGreeting() {
+      const now = new Date();
+      const hour = now.getHours();
+      let greeting = "";
+
+      if (hour < 12) greeting = "Good Morning";
+      else if (hour < 17) greeting = "Good Afternoon";
+      else greeting = "Good Evening";
+
+      const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
+      const monthName = now.toLocaleDateString("en-US", { month: "long" });
+      const date = now.getDate();
+      const year = now.getFullYear();
+
+      this.greetingMessage = `${greeting} | ${dayName}, ${monthName} ${date}, ${year}`;
+    },
     fetchUserData() {
       axios
-        .get('http://localhost:5000/user/dashboard', {
+        .get("http://localhost:5000/user/dashboard", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         })
         .then((response) => {
-          const data = response.data
+          const data = response.data;
           this.user = {
-            name: data.full_name,
+            full_name: data.full_name,
             email: data.email,
             qualification: data.qualification,
-          }
-          this.performance = data.performance
-          this.lastActive = data.last_login
-          this.quizzesCompleted = data.quizzes_completed
-          this.activityLog = data.activity_log
+          };
+          this.performance = data.performance;
+          this.lastActive = data.last_active;
+          this.quizzesCompleted = data.quizzes_completed;
+          this.activityLog = data.activity_log;
         })
         .catch((error) => {
-          console.error('Error fetching user dashboard:', error)
-        })
+          console.error("Error fetching user dashboard:", error);
+        });
     },
   },
-}
+};
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-sm p-4 w-100" style="max-width: 400px;">
+    <div class="card shadow-sm p-4 w-100" style="max-width: 400px">
       <h3 class="text-center mb-4">Login to Your Account</h3>
       <form @submit.prevent="login">
         <div class="mb-3">
@@ -58,10 +58,19 @@ export default {
           password: password.value,
         });
 
-        localStorage.setItem("access_token", response.data.access_token);
-       
-        router.push("/dashboard");
-        
+        const token = response.data.access_token;
+        const role = response.data.role;
+
+        localStorage.setItem("access_token", token);
+        localStorage.setItem("role", role);
+
+        if (role === "Admin") {
+          router.push("/dashboard");
+        } else if (role === "User") {
+          router.push("/user/dashboard");
+        } else {
+          errorMessage.value = "Unknown user role!";
+        }
       } catch (error) {
         errorMessage.value = "Invalid credentials, please try again.";
       }
@@ -76,7 +85,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-/* Optional: additional custom styles */
-</style>

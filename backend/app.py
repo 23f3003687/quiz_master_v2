@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
-# from routes.user_routes import user_bp
+from routes.user_routes import user_bp
 import os
 from flask_cors import CORS
 
@@ -35,7 +35,7 @@ login_manager.login_view = 'auth.login'
 # # Blueprints
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(admin_bp, url_prefix='/admin')
-# app.register_blueprint(user_bp, url_prefix='/user')
+app.register_blueprint(user_bp, url_prefix='/user')
 
 # Flask-Login user loader
 @login_manager.user_loader

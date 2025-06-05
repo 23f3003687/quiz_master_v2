@@ -27,13 +27,21 @@ const routes = [
     path: "/admin/chapter/:chapterId/quizzes",
     name: "QuizList",
     component: QuizList,
-    props: (route) => ({ chapterId: Number(route.params.chapterId),chapterName: route.params.chapterName }),
+    props: (route) => ({
+      chapterId: Number(route.params.chapterId),
+      chapterName: route.params.chapterName,
+    }),
   },
   {
     path: "/admin/quizzes/:quizId/questions",
     name: "QuizQuestions",
     component: () => import("@/views/QuestionList.vue"),
     props: true,
+  },
+  {
+    path: "/user/dashboard",
+    name: "UserDashboard",
+    component: () => import("../views/UserDashboard.vue"),
   },
 ];
 

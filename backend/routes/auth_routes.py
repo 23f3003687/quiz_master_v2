@@ -10,7 +10,6 @@ load_dotenv()
 # Create Blueprint
 auth_bp = Blueprint('auth', __name__)
 
-
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -28,10 +27,16 @@ def login():
             identity=str(user.user_id),
             additional_claims={"is_admin": user.is_admin}
         )
-        return jsonify({"access_token": access_token, "is_admin": user.is_admin}), 200
+
+        # Determine role string
+        role = "Admin" if user.is_admin else "User"
+
+        return jsonify({
+            "access_token": access_token,
+            "role": role  # Add this field
+        }), 200
 
     return jsonify({"msg": "Invalid credentials"}), 401
-
 
 
 # User Registration

@@ -3,7 +3,7 @@
     <h5 class="text-center mb-4">User Menu</h5>
     <ul class="nav flex-column">
       <li class="nav-item mb-2">
-        <router-link to="/user/home" class="nav-link text-white">🏠 Home</router-link>
+        <router-link to="/user/dashboard" class="nav-link text-white">🏠 Home</router-link>
       </li>
       <li class="nav-item mb-2">
         <router-link to="/user/subjects" class="nav-link text-white">📚 Subjects</router-link>

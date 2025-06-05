@@ -3,6 +3,8 @@ import Login from "../components/login.vue";
 import Register from "../components/register.vue";
 import AdminDashboard from "../views/AdminDashboard.vue";
 import SubjectDetail from "@/views/SubjectDetail.vue";
+import UserSubjects from "@/views/UserSubjects.vue";
+import UserDashboard from '@/views/UserDashboard.vue'
 import QuizList from "@/views/QuizList.vue";
 import Users from "../components/Users.vue";
 const routes = [
@@ -41,7 +43,12 @@ const routes = [
   {
     path: "/user/dashboard",
     name: "UserDashboard",
-    component: () => import("../views/UserDashboard.vue"),
+    component: UserDashboard,
+  },
+  {
+    path: "/user/subjects",
+    name: "UserSubjects",
+    component: UserSubjects,
   },
 ];
 

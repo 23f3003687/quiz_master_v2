@@ -40,7 +40,7 @@ export default {
 }
 
 .hover-card:hover {
-  background-color:rgb(226, 228, 230); /* light grey hover effect */
-  box-shadow: 0 4px 12px rgb(255, 17, 17); /* stronger shadow on hover */
+  background-color:rgb(173, 225, 255); /* light grey hover effect */
+  box-shadow: 0 4px 12px rgb(117, 25, 25); /* stronger shadow on hover */
 }
 </style>

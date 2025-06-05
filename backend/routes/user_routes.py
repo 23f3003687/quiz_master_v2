@@ -1,7 +1,7 @@
 # routes/user_routes.py
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import User, Score
+from models import User, Score, Subject
 user_bp = Blueprint('user', __name__)
 
 # backend/routes/user_routes.py
@@ -56,3 +56,18 @@ def get_user_dashboard():
         "quizzes_completed": quizzes_completed,
         "activity_log": activity_log
     })
+    
+@user_bp.route('/subjects', methods=['GET'])
+@jwt_required()
+def get_all_subjects():
+    subjects = Subject.query.all()
+    subject_list = [
+        {
+            "subject_id": subject.subject_id,
+            "name": subject.name,
+            "description": subject.description
+        }
+        for subject in subjects
+    ]
+    return jsonify({"subjects": subject_list}), 200
+    

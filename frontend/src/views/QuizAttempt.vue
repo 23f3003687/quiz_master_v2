@@ -4,7 +4,7 @@
     <UserSidebar class="bg-dark text-white" />
 
     <!-- Main content -->
-    <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px;">
+    <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px">
       <!-- Navbar -->
       <UserNavbar class="bg-white shadow-sm" />
 
@@ -24,7 +24,9 @@
         <div class="card shadow-lg">
           <div class="card-body">
             <h5 class="card-title">Question {{ currentIndex + 1 }}</h5>
-            <p class="card-text fs-5">{{ currentQuestion.question_statement}}</p>
+            <p class="card-text fs-5">
+              {{ currentQuestion.question_statement }}
+            </p>
 
             <!-- Options -->
             <div class="mt-3">
@@ -56,11 +58,10 @@
               >
                 ← Previous
               </button>
-              <button
-                class="btn btn-primary"
-                @click="nextQuestion"
-              >
-                {{ currentIndex === questions.length - 1 ? 'Submit' : 'Next →' }}
+              <button class="btn btn-primary" @click="nextQuestion">
+                {{
+                  currentIndex === questions.length - 1 ? "Submit" : "Next →"
+                }}
               </button>
             </div>
           </div>
@@ -71,17 +72,17 @@
 </template>
 
 <script>
-import UserSidebar from '@/components/UserSidebar.vue'
-import UserNavbar from '@/components/UserNavbar.vue'
-import axios from 'axios'
+import UserSidebar from "@/components/UserSidebar.vue";
+import UserNavbar from "@/components/UserNavbar.vue";
+import axios from "axios";
 
 export default {
-  name: 'QuizAttempt',
+  name: "QuizAttempt",
   components: {
     UserSidebar,
     UserNavbar,
   },
-  props: ['quizId'],
+  props: ["quizId"],
   data() {
     return {
       quiz: {},
@@ -90,73 +91,107 @@ export default {
       selectedAnswers: {},
       timer: null,
       timeLeft: 600, // default: 10 minutes
-    }
+    };
   },
   computed: {
     currentQuestion() {
-      return this.questions[this.currentIndex] || {}
+      return this.questions[this.currentIndex] || {};
     },
     formattedTime() {
-      const minutes = Math.floor(this.timeLeft / 60)
-      const seconds = this.timeLeft % 60
-      return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+      const minutes = Math.floor(this.timeLeft / 60);
+      const seconds = this.timeLeft % 60;
+      return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     },
   },
   mounted() {
-    this.fetchQuizData()
-    this.startTimer()
+    this.fetchQuizData();
+    this.startTimer();
   },
   beforeUnmount() {
-    clearInterval(this.timer)
+    clearInterval(this.timer);
   },
   methods: {
     fetchQuizData() {
       axios
         .get(`http://localhost:5000/user/quiz/${this.quizId}/attempt`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         })
         .then((res) => {
-          this.quiz = res.data.quiz
-          this.questions = res.data.questions
-          this.timeLeft = this.quiz.time_duration * 60 // minutes to seconds
+          this.quiz = res.data.quiz;
+          this.questions = res.data.questions;
+          this.timeLeft = this.quiz.time_duration * 60; // minutes to seconds
         })
         .catch((err) => {
-          console.error('Error fetching quiz data:', err)
-        })
+          console.error("Error fetching quiz data:", err);
+        });
     },
     startTimer() {
       this.timer = setInterval(() => {
         if (this.timeLeft > 0) {
-          this.timeLeft--
+          this.timeLeft--;
         } else {
-          clearInterval(this.timer)
-          alert('Time is up! Submitting the quiz...')
-          this.submitQuiz()
+          clearInterval(this.timer);
+          alert("Time is up! Submitting the quiz...");
+          this.submitQuiz();
         }
-      }, 1000)
+      }, 1000);
     },
     nextQuestion() {
       if (this.currentIndex < this.questions.length - 1) {
-        this.currentIndex++
+        this.currentIndex++;
       } else {
-        this.submitQuiz()
+        this.submitQuiz();
       }
     },
     prevQuestion() {
       if (this.currentIndex > 0) {
-        this.currentIndex--
+        this.currentIndex--;
       }
     },
     submitQuiz() {
-      // Submit the selected answers to backend (optional implementation)
-      console.log('Submitting:', this.selectedAnswers)
-      alert('Quiz submitted successfully!')
-      this.$router.push('/user/dashboard')
+      // Calculate total seconds taken
+      const secondsTaken = this.quiz.time_duration * 60 - this.timeLeft;
+
+      // Format time as "mm:ss"
+      const minutes = Math.floor(secondsTaken / 60);
+      const seconds = secondsTaken % 60;
+      const formattedTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+      // Use formatted time in payload
+      const payload = {
+        quiz_id: this.quizId,
+        answers: Object.entries(this.selectedAnswers).map(
+          ([question_id, selected_option]) => ({
+            question_id: parseInt(question_id),
+            selected_option,
+          })
+        ),
+        time_taken: formattedTime, // <-- here
+      };
+
+      axios
+        .post(
+          `http://localhost:5000/user/submit-quiz/${this.quizId}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          const score_id = res.data.score_id;
+          this.$router.push(`/user/scorecard/${score_id}`);
+        })
+        .catch((err) => {
+          console.error("Error submitting quiz:", err);
+          alert("Error submitting quiz. Please try again.");
+        });
     },
   },
-}
+};
 </script>
 
 <style scoped>

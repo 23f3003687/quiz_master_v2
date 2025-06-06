@@ -63,7 +63,14 @@ const routes = [
   name: 'QuizAttempt',
   component: () => import('@/views/QuizAttempt.vue'),
   props: true,
+},
+{
+  path: '/user/scorecard/:score_id',
+  name: 'ScoreCard',
+  component: () => import('@/views/ScoreCard.vue'),
+  props: true,
 }
+
 
 
 ];

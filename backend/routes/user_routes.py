@@ -2,7 +2,8 @@
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import User, Score, Subject, Chapter, Quiz, Question
+from models import db ,User, Score, Subject, Chapter, Quiz, Question, UserAnswer
+from datetime import datetime
 user_bp = Blueprint('user', __name__)
 
 # backend/routes/user_routes.py
@@ -143,3 +144,94 @@ def get_quiz_attempt(quiz_id):
         "quiz": quiz_data,
         "questions": questions_data
     })
+    
+@user_bp.route('/submit-quiz/<int:quiz_id>', methods=['POST','OPTIONS'])
+@cross_origin() 
+@jwt_required()
+def submit_quiz(quiz_id):
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    answers = data.get("answers", [])  # [{question_id: 1, selected_option: "option2"}, ...]
+
+    total_score = 0
+    correct_count = 0
+    wrong_count = 0
+
+    # Step 1: Create Score object
+    score = Score(
+        quiz_id=quiz_id,
+        user_id=user_id,
+        time_stamp_of_attempt=datetime.utcnow(),
+        total_score=0,  # will be updated below
+        correct_answers=0,
+        wrong_answers=0,
+        time_taken=data.get("time_taken", "00:00"),
+        remarks=None,
+        status=None  # Will set pass/fail later
+    )
+    db.session.add(score)
+    db.session.commit()
+
+    for ans in answers:
+        question = Question.query.get(ans["question_id"])
+        if not question:
+            continue
+
+        selected = ans["selected_option"]
+        is_correct = (selected == question.correct_option)
+        if is_correct:
+            total_score += 1  # 1 mark per correct
+            correct_count += 1
+        else:
+            wrong_count += 1
+
+        user_answer = UserAnswer(
+            score_id=score.score_id,
+            question_id=question.question_id,
+            selected_option=selected,
+            is_correct=is_correct
+        )
+        db.session.add(user_answer)
+
+    # Step 2: Update Score fields
+    score.total_score = total_score
+    score.correct_answers = correct_count
+    score.wrong_answers = wrong_count
+    score.status = "Passed" if correct_count >= len(answers) / 2 else "Failed"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Quiz submitted successfully",
+        "score_id": score.score_id
+    }), 200
+
+@user_bp.route('/score/<int:score_id>', methods=['GET'])
+@jwt_required()
+def get_scorecard(score_id):
+    score = Score.query.get_or_404(score_id)
+    user_answers = UserAnswer.query.filter_by(score_id=score_id).all()
+
+    questions = []
+    for ans in user_answers:
+        question = Question.query.get(ans.question_id)
+        questions.append({
+            "question_statement": question.question_statement,
+            "selected_option": ans.selected_option,
+            "correct_option": question.correct_option,
+            "is_correct": ans.is_correct,
+            "difficulty": question.difficulty,
+            "explanation": question.explanation
+        })
+
+    return jsonify({
+        "score_id": score.score_id,
+        "quiz_id": score.quiz_id,
+        "total_score": score.total_score,
+        "correct_answers": score.correct_answers,
+        "wrong_answers": score.wrong_answers,
+        "time_stamp_of_attempt": score.time_stamp_of_attempt.strftime('%Y-%m-%d %H:%M'),
+        "status": score.status,
+        "questions": questions
+    }), 200

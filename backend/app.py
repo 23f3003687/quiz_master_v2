@@ -9,6 +9,9 @@ from routes.admin_routes import admin_bp
 from routes.user_routes import user_bp
 import os
 from flask_cors import CORS
+from flask_migrate import Migrate
+
+
 
 
 # Initialize Flask app
@@ -27,6 +30,7 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 jwt = JWTManager(app)
 db.init_app(app)
 
+migrate = Migrate(app, db)
 # Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)

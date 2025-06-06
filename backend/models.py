@@ -105,6 +105,24 @@ class Score(db.Model):
     remarks = db.Column(db.String(255), nullable=True)
     ranking = db.Column(db.Integer, nullable=True)  # Optional
     status = db.Column(db.String(20), nullable=True)  # e.g., Passed, Failed
+    
+    
 
     def __repr__(self):
         return f"<Score {self.score_id} | User {self.user_id} | Quiz {self.quiz_id}>"
+    
+class UserAnswer(db.Model):
+    __tablename__ = 'user_answers'
+
+    answer_id = db.Column(db.Integer, primary_key=True)
+    score_id = db.Column(db.Integer, db.ForeignKey('scores.score_id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.question_id'), nullable=False)
+    selected_option = db.Column(db.String(10), nullable=False)  # e.g., "option2"
+    is_correct = db.Column(db.Boolean, nullable=False)
+
+    # Use unique backref names to avoid conflict
+    question = db.relationship('Question', backref='user_answer_list', lazy=True)
+    score = db.relationship('Score', backref='user_answer_list', lazy=True)
+
+    def __repr__(self):
+        return f"<UserAnswer Question {self.question_id} | Selected {self.selected_option} | Correct: {self.is_correct}>"

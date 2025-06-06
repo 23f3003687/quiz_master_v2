@@ -25,7 +25,7 @@
               :key="quiz.quiz_id"
             >
               <div
-                class="card h-100 shadow-lg p-3 border-start transition hover-card border-3 border-dark"
+                class="card h-100 shadow-lg p-3 border-start transition hover-card border-3 "
               >
                 <div class="card-body">
                   <h5 class="card-title">{{ quiz.name }}</h5>
@@ -66,7 +66,7 @@
                   <p>
                     <strong>Tags: </strong>
                     <span
-                      class="badge bg-warning me-1"
+                      class="badge bg-primary me-1"
                       v-for="(tag, index) in quiz.tags.split(',')"
                       :key="index"
                     >

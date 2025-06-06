@@ -2,7 +2,7 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
     <div class="container-fluid d-flex justify-content-between align-items-center">
       <!-- Welcome message -->
-      <span class="navbar-brand mb-0 h5">Welcome QuizMaster</span>
+      <span class="navbar-brand mb-0 h5">Welcome QuizMaster✨</span>
 
       <!-- Search bar -->
       <form class="d-flex w-50">

@@ -9,7 +9,7 @@
         :to="'/admin/subject/' + subject.subject_id"
         class="text-decoration-none text-dark"
       >
-        <div class="card h-100 shadow-sm transition hover-card">
+        <div class="card shadow-sm h-100 transition hover-card">
           <div class="card-body">
             <h5 class="card-title fs-4">{{ subject.name }}</h5>
             <!-- Larger title -->
@@ -35,10 +35,13 @@ export default {
 </script>
 
 <style scoped>
-.hover-card {
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
 
+.card {
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: scale(1.02);
+}
 .hover-card:hover {
   background-color:rgb(173, 225, 255); /* light grey hover effect */
   box-shadow: 0 4px 12px rgb(117, 25, 25); /* stronger shadow on hover */

@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card text-white bg-info shadow-sm">
+            <div class="card text-white bg-warning shadow-sm">
               <div class="card-body">
                 <h5 class="card-title">Last Login</h5>
                 <p class="card-text">{{ lastActive }}</p>

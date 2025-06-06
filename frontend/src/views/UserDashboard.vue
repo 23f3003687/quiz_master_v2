@@ -4,12 +4,12 @@
     <UserSidebar class="bg-dark text-white" />
 
     <!-- Main content on the right -->
-    <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px">
+    <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px; max-height: 100vh; overflow-y: auto">
       <!-- Navbar at the top -->
       <UserNavbar class="bg-white shadow-sm" />
 
       <!-- Main Dashboard Content -->
-      <div class="container mt-4">
+      <div class="container mt-4 pb-5">
         <!-- User Greeting -->
         <div class="mb-4">
           <h4>Hello, {{ user.full_name }}</h4>
@@ -31,7 +31,7 @@
           <div class="col-md-4">
             <div class="card text-white bg-info shadow-sm">
               <div class="card-body">
-                <h5 class="card-title">Last Active</h5>
+                <h5 class="card-title">Last Login</h5>
                 <p class="card-text">{{ lastActive }}</p>
               </div>
             </div>
@@ -48,7 +48,7 @@
 
         <!-- Student Activity -->
         <div>
-          <h5>Recent Activity</h5>
+          <h5>Recent Activities</h5>
           <ul class="list-group">
             <li
               class="list-group-item"
@@ -125,7 +125,7 @@ export default {
             qualification: data.qualification,
           };
           this.performance = data.performance;
-          this.lastActive = data.last_active;
+          this.lastActive = data.last_login;
           this.quizzesCompleted = data.quizzes_completed;
           this.activityLog = data.activity_log;
         })

@@ -43,7 +43,7 @@ export default {
   transform: scale(1.02);
 }
 .hover-card:hover {
-  background-color:rgb(173, 225, 255); /* light grey hover effect */
+  background-color:rgb(200, 253, 255); /* light grey hover effect */
   box-shadow: 0 4px 12px rgb(117, 25, 25); /* stronger shadow on hover */
 }
 </style>

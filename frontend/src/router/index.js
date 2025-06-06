@@ -4,6 +4,7 @@ import Register from "../components/register.vue";
 import AdminDashboard from "../views/AdminDashboard.vue";
 import SubjectDetail from "@/views/SubjectDetail.vue";
 import UserSubjects from "@/views/UserSubjects.vue";
+import UserSubjectDetail from "@/views/UserSubjectDetail.vue";
 import UserDashboard from '@/views/UserDashboard.vue'
 import QuizList from "@/views/QuizList.vue";
 import Users from "../components/Users.vue";
@@ -50,6 +51,21 @@ const routes = [
     name: "UserSubjects",
     component: UserSubjects,
   },
+  {
+  path: "/user/subject/:subjectId",
+  name: "UserSubjectDetail",
+  component: UserSubjectDetail,
+  props: true,
+  
+},
+ { 
+  path: '/user/quiz/:quizId/attempt',
+  name: 'QuizAttempt',
+  component: () => import('@/views/QuizAttempt.vue'),
+  props: true,
+}
+
+
 ];
 
 const router = createRouter({

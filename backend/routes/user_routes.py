@@ -39,16 +39,20 @@ def get_user_dashboard():
     # Last login
     last_login = user.last_login.strftime("%Y-%m-%d %H:%M:%S") if user.last_login else "N/A"
 
-    # Activity log: latest 5 attempts
-    activity_log = [
-        {
-            "id": score.score_id,
-            "timestamp": score.time_stamp_of_attempt.strftime("%Y-%m-%d %H:%M:%S"),
-            "description": f"Attempted quiz ID {score.quiz_id} - Score: {score.total_score}"
-        }
-        for score in completed_scores[:5]
-    ]
+    # Activity log (latest 5)
+    activity_log = []
+    for score in completed_scores[:5]:
+        quiz = Quiz.query.get(score.quiz_id)
+        total_questions = score.correct_answers + score.wrong_answers
+        accuracy = round((score.correct_answers / total_questions) * 100, 2) if total_questions else 0
 
+        activity_log.append({
+            "id": score.score_id,
+            "quiz_name": quiz.name if quiz else "Unknown Quiz",
+            "score": score.total_score,
+            "accuracy": accuracy,
+            "completion_date": score.time_stamp_of_attempt.strftime("%Y-%m-%d %H:%M:%S")
+        })
     return jsonify({
         "full_name": user.full_name,
         "email": user.email,

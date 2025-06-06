@@ -4,7 +4,10 @@
     <UserSidebar class="bg-dark text-white" />
 
     <!-- Main content on the right -->
-    <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px; max-height: 100vh; overflow-y: auto">
+    <div
+      class="flex-grow-1 d-flex flex-column"
+      style="margin-left: 175px; max-height: 100vh; overflow-y: auto"
+    >
       <!-- Navbar at the top -->
       <UserNavbar class="bg-white shadow-sm" />
 
@@ -46,18 +49,29 @@
           </div>
         </div>
 
-        <!-- Student Activity -->
+        <!-- Recent Activity Table -->
         <div>
-          <h5>Recent Activities</h5>
-          <ul class="list-group">
-            <li
-              class="list-group-item"
-              v-for="activity in activityLog"
-              :key="activity.id"
-            >
-              {{ activity.timestamp }} — {{ activity.description }}
-            </li>
-          </ul>
+          <h5>Recent Activity</h5>
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Quiz Name</th>
+                  <th>Score</th>
+                  <th>Accuracy (%)</th>
+                  <th>Completion Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="activity in activityLog" :key="activity.id">
+                  <td>{{ activity.quiz_name }}</td>
+                  <td>{{ activity.score }}</td>
+                  <td>{{ activity.accuracy }}</td>
+                  <td>{{ activity.completion_date }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

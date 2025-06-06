@@ -29,22 +29,25 @@
             </p>
 
             <!-- Options -->
-            <div class="mt-3">
+            <div
+              class="mt-3"
+              v-if="currentQuestion && currentQuestion.question_id"
+            >
               <div
                 class="form-check mb-2"
-                v-for="(option, index) in currentQuestion.options"
-                :key="index"
+                v-for="(optionValue, optionKey) in getOptions(currentQuestion)"
+                :key="optionKey"
               >
                 <input
                   class="form-check-input"
                   type="radio"
-                  :id="'option' + index"
-                  :value="option"
+                  :id="optionKey"
+                  :value="optionKey"
                   v-model="selectedAnswers[currentQuestion.question_id]"
-                  name="options"
+                  :name="'options_' + currentQuestion.question_id"
                 />
-                <label class="form-check-label" :for="'option' + index">
-                  {{ option }}
+                <label class="form-check-label" :for="optionKey">
+                  {{ optionValue }}
                 </label>
               </div>
             </div>
@@ -111,6 +114,18 @@ export default {
     clearInterval(this.timer);
   },
   methods: {
+    getOptions(question) {
+      if (!question) return {};
+      return Object.fromEntries(
+        Object.entries({
+          option1: question.option1,
+          option2: question.option2,
+          option3: question.option3,
+          option4: question.option4,
+        }).filter(([_, value]) => value && value.trim() !== "")
+      );
+    },
+
     fetchQuizData() {
       axios
         .get(`http://localhost:5000/user/quiz/${this.quizId}/attempt`, {
@@ -151,15 +166,11 @@ export default {
       }
     },
     submitQuiz() {
-      // Calculate total seconds taken
       const secondsTaken = this.quiz.time_duration * 60 - this.timeLeft;
-
-      // Format time as "mm:ss"
       const minutes = Math.floor(secondsTaken / 60);
       const seconds = secondsTaken % 60;
       const formattedTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 
-      // Use formatted time in payload
       const payload = {
         quiz_id: this.quizId,
         answers: Object.entries(this.selectedAnswers).map(
@@ -168,7 +179,7 @@ export default {
             selected_option,
           })
         ),
-        time_taken: formattedTime, // <-- here
+        time_taken: formattedTime,
       };
 
       axios

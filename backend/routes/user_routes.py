@@ -13,8 +13,8 @@ def calculate_performance(user_id):
     scores = Score.query.filter_by(user_id=user_id).all()
     if not scores:
         return 0
-    total_score = sum(score.marks_obtained for score in scores)
-    total_max = sum(score.total_marks for score in scores)
+    total_score = sum(score.total_score for score in scores)
+    total_max = sum(score.correct_answers for score in scores)
     return round((total_score / total_max) * 100) if total_max > 0 else 0
 
 
@@ -109,12 +109,11 @@ def get_quizzes_by_subject(subject_id):
         return jsonify({'error': 'Something went wrong'}), 500
     
 @user_bp.route("/quiz/<int:quiz_id>/attempt", methods=["GET", "OPTIONS"])
-@cross_origin()  # this adds the correct CORS headers
+@cross_origin()
 def get_quiz_attempt(quiz_id):
     if request.method == "OPTIONS":
-        return '', 200  # Respond to CORS preflight
+        return '', 200
 
-    # Apply JWT only for actual GET requests
     from flask_jwt_extended import verify_jwt_in_request
     verify_jwt_in_request()
 
@@ -133,20 +132,23 @@ def get_quiz_attempt(quiz_id):
 
     questions_data = []
     for q in questions:
-        options = [q.option1, q.option2, q.option3, q.option4]
         questions_data.append({
             "question_id": q.question_id,
             "question_statement": q.question_statement,
-            "options": options
+            "option1": q.option1,
+            "option2": q.option2,
+            "option3": q.option3,
+            "option4": q.option4,
         })
 
     return jsonify({
         "quiz": quiz_data,
         "questions": questions_data
     })
+
     
-@user_bp.route('/submit-quiz/<int:quiz_id>', methods=['POST','OPTIONS'])
-@cross_origin() 
+@user_bp.route('/submit-quiz/<int:quiz_id>', methods=['POST', 'OPTIONS'])
+@cross_origin()
 @jwt_required()
 def submit_quiz(quiz_id):
     user_id = get_jwt_identity()
@@ -168,7 +170,7 @@ def submit_quiz(quiz_id):
         wrong_answers=0,
         time_taken=data.get("time_taken", "00:00"),
         remarks=None,
-        status=None  # Will set pass/fail later
+        status=None
     )
     db.session.add(score)
     db.session.commit()
@@ -178,10 +180,29 @@ def submit_quiz(quiz_id):
         if not question:
             continue
 
-        selected = ans["selected_option"]
-        is_correct = (selected == question.correct_option)
+        selected_key = ans.get("selected_option")
+        print(f"Question ID: {question.question_id}, Selected option key: {selected_key}")
+
+
+        # Handle skipped or invalid answers
+        if not selected_key:
+            selected_value = "skipped"
+            is_correct = False
+        else:
+            selected_key = str(selected_key)
+            selected_value = getattr(question, selected_key, None)
+            print(f"Selected value from question: {selected_value}")
+
+            if selected_value is None:
+                selected_value = "invalid"
+                is_correct = False
+            else:
+                correct_value = getattr(question, question.correct_option, None)
+                is_correct = selected_value == correct_value
+
+        # Update score counts
         if is_correct:
-            total_score += 1  # 1 mark per correct
+            total_score += 1
             correct_count += 1
         else:
             wrong_count += 1
@@ -189,7 +210,7 @@ def submit_quiz(quiz_id):
         user_answer = UserAnswer(
             score_id=score.score_id,
             question_id=question.question_id,
-            selected_option=selected,
+            selected_option=selected_value,
             is_correct=is_correct
         )
         db.session.add(user_answer)
@@ -206,6 +227,7 @@ def submit_quiz(quiz_id):
         "message": "Quiz submitted successfully",
         "score_id": score.score_id
     }), 200
+
 
 @user_bp.route('/score/<int:score_id>', methods=['GET'])
 @jwt_required()

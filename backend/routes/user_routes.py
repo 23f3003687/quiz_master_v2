@@ -17,6 +17,19 @@ def calculate_performance(user_id):
     total_max = sum(score.correct_answers for score in scores)
     return round((total_score / total_max) * 100) if total_max > 0 else 0
 
+def generate_remarks(total_score, total_marks):
+    percentage = total_score / total_marks if total_marks > 0 else 0
+
+    if percentage == 1.0:
+        return "Outstanding! You aced it!"
+    elif percentage >= 0.75:
+        return "Great job! Keep it up!"
+    elif percentage >= 0.5:
+        return "Good effort. Review and try again!"
+    else:
+        return "Needs improvement. Don’t give up!"
+
+
 
 
 
@@ -224,6 +237,11 @@ def submit_quiz(quiz_id):
     score.correct_answers = correct_count
     score.wrong_answers = wrong_count
     score.status = "Passed" if correct_count >= len(answers) / 2 else "Failed"
+    
+    # Fetch total_marks from the quiz and generate remarks
+    quiz = Quiz.query.get(quiz_id)
+    total_marks = quiz.total_marks if quiz else len(answers)
+    score.remarks = generate_remarks(total_score, total_marks)
 
     db.session.commit()
 
@@ -259,5 +277,6 @@ def get_scorecard(score_id):
         "wrong_answers": score.wrong_answers,
         "time_stamp_of_attempt": score.time_stamp_of_attempt.strftime('%Y-%m-%d %H:%M'),
         "status": score.status,
+        "remarks": score.remarks,
         "questions": questions
     }), 200

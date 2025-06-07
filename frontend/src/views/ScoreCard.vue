@@ -9,6 +9,9 @@
       <UserNavbar class="bg-white shadow-sm" />
       <div class="container mt-4">
         <h3 class="mb-4 text-success">🎉 Quiz submitted successfully!</h3>
+        <div v-if="remarks" class="alert alert-info">
+          <strong>💬</strong> {{ remarks }}
+        </div>
 
         <div class="row mb-4">
           <div class="col-md-3" v-for="card in scoreCards" :key="card.label">
@@ -72,6 +75,7 @@ export default {
 
     const scoreCards = ref([]);
     const questions = ref([]);
+    const remarks = ref("");
 
     onMounted(async () => {
       const token = localStorage.getItem("access_token");
@@ -92,6 +96,8 @@ export default {
             ? ((data.correct_answers / total) * 100).toFixed(0) + "%"
             : "N/A";
 
+        remarks.value = data.remarks;
+
         scoreCards.value = [
           { label: "Total Score", value: `${data.total_score}` },
           { label: "Accuracy", value: accuracy },
@@ -108,6 +114,7 @@ export default {
     return {
       scoreCards,
       questions,
+      remarks,
     };
   },
 };

@@ -9,6 +9,9 @@
       <UserNavbar class="bg-white shadow-sm" />
       <div class="container mt-4">
         <h3 class="mb-4 text-success">🎉 Quiz submitted successfully!</h3>
+        <div class="text-muted">
+          <strong>⏱ Time Taken:</strong> {{ timeTaken }}
+        </div>
         <div v-if="remarks" class="alert alert-info">
           <strong>💬</strong> {{ remarks }}
         </div>
@@ -18,7 +21,17 @@
             <div class="card text-center shadow">
               <div class="card-body">
                 <h5 class="card-title">{{ card.label }}</h5>
-                <p class="card-text fw-bold">{{ card.value }}</p>
+                <p
+                  class="card-text fw-bold"
+                  :class="{
+                    'text-success':
+                      card.label === 'Status' && card.value === 'PASSED',
+                    'text-danger':
+                      card.label === 'Status' && card.value === 'FAILED',
+                  }"
+                >
+                  {{ card.value }}
+                </p>
               </div>
             </div>
           </div>
@@ -38,10 +51,27 @@
               <strong>Selected Option:</strong> {{ q.selected_option }} <br />
               <strong>Correct Option:</strong> {{ q.correct_option }}
             </p>
-            <p :class="q.is_correct ? 'text-success' : 'text-danger'">
+            <p>
               <strong>Status:</strong>
-              {{ q.is_correct ? "Correct ✅" : "Wrong ❌" }}
+              <span
+                :class="
+                  q.selected_option === 'skipped'
+                    ? 'text-warning'
+                    : q.is_correct
+                    ? 'text-success'
+                    : 'text-danger'
+                "
+              >
+                {{
+                  q.selected_option === "skipped"
+                    ? "Skipped ⚠️"
+                    : q.is_correct
+                    ? "Correct ✅"
+                    : "Wrong ❌"
+                }}
+              </span>
             </p>
+
             <p>
               <strong>Difficulty:</strong> {{ q.difficulty || "Not specified" }}
             </p>
@@ -72,7 +102,7 @@ export default {
   setup() {
     const route = useRoute();
     const scoreId = route.params.score_id;
-
+    const timeTaken = ref("");
     const scoreCards = ref([]);
     const questions = ref([]);
     const remarks = ref("");
@@ -97,11 +127,18 @@ export default {
             : "N/A";
 
         remarks.value = data.remarks;
+        timeTaken.value = data.time_taken || "N/A";
 
         scoreCards.value = [
-          { label: "Total Score", value: `${data.total_score}` },
+          {
+            label: "Total Score",
+            value: `${data.total_score}/${data.quiz_total_marks}`,
+          },
           { label: "Accuracy", value: accuracy },
-          { label: "Time", value: data.time_stamp_of_attempt },
+          {
+            label: "Attempted",
+            value: `${data.attempted_questions}/${data.total_questions}`,
+          },
           { label: "Status", value: data.status },
         ];
 
@@ -115,6 +152,7 @@ export default {
       scoreCards,
       questions,
       remarks,
+      timeTaken,
     };
   },
 };

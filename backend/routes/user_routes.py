@@ -62,7 +62,7 @@ def get_user_dashboard():
         activity_log.append({
             "id": score.score_id,
             "quiz_name": quiz.name if quiz else "Unknown Quiz",
-            "score": score.total_score,
+            "score": f"{score.total_score} / {quiz.total_marks if quiz else 'N/A'}",
             "accuracy": accuracy,
             "completion_date": score.time_stamp_of_attempt.strftime("%Y-%m-%d %H:%M:%S")
         })
@@ -170,19 +170,14 @@ def get_quiz_attempt(quiz_id):
 def submit_quiz(quiz_id):
     user_id = get_jwt_identity()
     data = request.get_json()
-
     answers = data.get("answers", [])  # [{question_id: 1, selected_option: "option2"}, ...]
-
-    total_score = 0
-    correct_count = 0
-    wrong_count = 0
 
     # Step 1: Create Score object
     score = Score(
         quiz_id=quiz_id,
         user_id=user_id,
         time_stamp_of_attempt=datetime.utcnow(),
-        total_score=0,  # will be updated below
+        total_score=0,
         correct_answers=0,
         wrong_answers=0,
         time_taken=data.get("time_taken", "00:00"),
@@ -192,55 +187,66 @@ def submit_quiz(quiz_id):
     db.session.add(score)
     db.session.commit()
 
+    # Step 2: Get all questions for the quiz
+    all_questions = Question.query.filter_by(quiz_id=quiz_id).all()
+    answered_question_ids = set(ans["question_id"] for ans in answers)
+    question_map = {q.question_id: q for q in all_questions}
+
+    total_score = 0
+    correct_count = 0
+    wrong_count = 0
+
+    # Step 3: Process submitted answers
     for ans in answers:
-        question = Question.query.get(ans["question_id"])
+        question = question_map.get(ans["question_id"])
         if not question:
             continue
 
-        selected_key = ans.get("selected_option")
-        print(f"Question ID: {question.question_id}, Selected option key: {selected_key}")
-
-
-        # Handle skipped or invalid answers
+        selected_key = str(ans.get("selected_option"))
         if not selected_key:
             selected_value = "skipped"
             is_correct = False
         else:
-            selected_key = str(selected_key)
             selected_value = getattr(question, selected_key, None)
-            print(f"Selected value from question: {selected_value}")
+            correct_value = getattr(question, question.correct_option, None)
 
             if selected_value is None:
                 selected_value = "invalid"
                 is_correct = False
             else:
-                correct_value = getattr(question, question.correct_option, None)
                 is_correct = selected_value == correct_value
 
-        # Update score counts
         if is_correct:
-            total_score += 1
             correct_count += 1
-        else:
+            total_score += 1
+        elif selected_value not in ["skipped", "invalid"]:
             wrong_count += 1
 
-        user_answer = UserAnswer(
+        db.session.add(UserAnswer(
             score_id=score.score_id,
             question_id=question.question_id,
             selected_option=selected_value,
             is_correct=is_correct
-        )
-        db.session.add(user_answer)
+        ))
 
-    # Step 2: Update Score fields
+    # Step 4: Handle skipped questions (not in answers at all)
+    for q in all_questions:
+        if q.question_id not in answered_question_ids:
+            db.session.add(UserAnswer(
+                score_id=score.score_id,
+                question_id=q.question_id,
+                selected_option="skipped",
+                is_correct=False
+            ))
+
+    # Step 5: Finalize Score
+    quiz = Quiz.query.get(quiz_id)
+    total_marks = quiz.total_marks if quiz else len(all_questions)
+
     score.total_score = total_score
     score.correct_answers = correct_count
     score.wrong_answers = wrong_count
-    score.status = "Passed" if correct_count >= len(answers) / 2 else "Failed"
-    
-    # Fetch total_marks from the quiz and generate remarks
-    quiz = Quiz.query.get(quiz_id)
-    total_marks = quiz.total_marks if quiz else len(answers)
+    score.status = "PASSED" if correct_count >= len(all_questions) / 2 else "FAILED"
     score.remarks = generate_remarks(total_score, total_marks)
 
     db.session.commit()
@@ -251,11 +257,14 @@ def submit_quiz(quiz_id):
     }), 200
 
 
+
 @user_bp.route('/score/<int:score_id>', methods=['GET'])
 @jwt_required()
 def get_scorecard(score_id):
     score = Score.query.get_or_404(score_id)
+    quiz = Quiz.query.get(score.quiz_id)
     user_answers = UserAnswer.query.filter_by(score_id=score_id).all()
+    attempted = score.correct_answers + score.wrong_answers
 
     questions = []
     for ans in user_answers:
@@ -273,9 +282,13 @@ def get_scorecard(score_id):
         "score_id": score.score_id,
         "quiz_id": score.quiz_id,
         "total_score": score.total_score,
+        "quiz_total_marks": quiz.total_marks if quiz else 0,
         "correct_answers": score.correct_answers,
         "wrong_answers": score.wrong_answers,
+        "attempted_questions": attempted,
+        "total_questions": len(user_answers),
         "time_stamp_of_attempt": score.time_stamp_of_attempt.strftime('%Y-%m-%d %H:%M'),
+        "time_taken": score.time_taken,
         "status": score.status,
         "remarks": score.remarks,
         "questions": questions

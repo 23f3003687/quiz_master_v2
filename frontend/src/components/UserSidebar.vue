@@ -1,18 +1,35 @@
 <template>
-  <div class="bg-dark text-white vh-100 p-3 position-fixed" style="width: 175px;">
+  <div
+    class="bg-dark text-white vh-100 p-3 position-fixed"
+    style="width: 175px"
+  >
     <h5 class="text-center mb-4">User Menu</h5>
     <ul class="nav flex-column">
       <li class="nav-item mb-2">
-        <router-link to="/user/dashboard" class="nav-link text-white">🏠 Home</router-link>
+        <router-link to="/user/dashboard" class="nav-link text-white"
+          >🏠 Home</router-link
+        >
       </li>
       <li class="nav-item mb-2">
-        <router-link to="/user/subjects" class="nav-link text-white">📚 Subjects</router-link>
+        <router-link to="/user/subjects" class="nav-link text-white"
+          >📚 Subjects</router-link
+        >
       </li>
       <li class="nav-item mb-2">
-        <router-link to="/user/reports" class="nav-link text-white">📄 Report</router-link>
+        <router-link to="/user/score/history" class="nav-link text-white"
+          >📘 Quiz History</router-link
+        >
+      </li>
+
+      <li class="nav-item mb-2">
+        <router-link to="/user/summary" class="nav-link text-white"
+          >📄 Quiz Report</router-link
+        >
       </li>
       <li class="nav-item mb-2">
-        <a href="#" class="nav-link text-danger" @click.prevent="logout">🚪 Logout</a>
+        <a href="#" class="nav-link text-danger" @click.prevent="logout"
+          >🚪 Logout</a
+        >
       </li>
     </ul>
   </div>
@@ -20,14 +37,14 @@
 
 <script>
 export default {
-  name: 'UserSidebar',
+  name: "UserSidebar",
   methods: {
     logout() {
-      localStorage.removeItem('access_token')
-      this.$router.push('/login')
-    }
-  }
-}
+      localStorage.removeItem("access_token");
+      this.$router.push("/login");
+    },
+  },
+};
 </script>
 
 <style scoped>

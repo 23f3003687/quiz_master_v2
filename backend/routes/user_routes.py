@@ -293,3 +293,66 @@ def get_scorecard(score_id):
         "remarks": score.remarks,
         "questions": questions
     }), 200
+    
+@user_bp.route('/score/history', methods=['GET'])
+@jwt_required()
+def get_score_history():
+    user_id = get_jwt_identity()
+    scores = Score.query.filter_by(user_id=user_id).order_by(Score.time_stamp_of_attempt.desc()).all()
+    history = []
+    for s in scores:
+        quiz = Quiz.query.get(s.quiz_id)
+        history.append({
+            "score_id": s.score_id,
+            "quiz_name": quiz.name if quiz else "Unknown Quiz",
+            "score": f"{s.total_score}/{quiz.total_marks}" if quiz else s.total_score,
+            "accuracy": f"{round((s.correct_answers / (s.correct_answers + s.wrong_answers)) * 100, 2)}%" if (s.correct_answers + s.wrong_answers) else "N/A",
+            "status": s.status,
+            "time_stamp_of_attempt": s.time_stamp_of_attempt.strftime('%Y-%m-%d %H:%M')
+        })
+    return jsonify(history), 200
+
+
+@user_bp.route('/summary-report', methods=['GET'])
+@jwt_required()
+def summary_report():
+    user_id = get_jwt_identity()
+    scores = Score.query.filter_by(user_id=user_id).all()
+
+    if not scores:
+        return jsonify({"message": "No attempts yet", "summary": {}, "scores": []}), 200
+
+    # Compose summary stats
+    total_quizzes = len(scores)
+    total_score = sum(score.total_score for score in scores)
+    highest_score = max(score.total_score for score in scores)
+    average_score = round(total_score / total_quizzes, 2)
+    passed = sum(1 for s in scores if s.status == "PASSED")
+    failed = total_quizzes - passed
+    total_correct = sum(s.correct_answers for s in scores)
+    total_questions = total_correct + sum(s.wrong_answers for s in scores)
+    accuracy = round((total_correct / total_questions) * 100, 2) if total_questions else 0
+
+    # Also prepare detailed score info for frontend charts
+    detailed_scores = []
+    for s in scores:
+        detailed_scores.append({
+            "quiz_name": s.quiz.name if s.quiz else "Unknown Quiz",
+            "total_score": s.total_score,
+            "quiz_total_marks": s.quiz.total_marks if s.quiz else 0,
+            "status": s.status,
+            "time_stamp_of_attempt": s.time_stamp_of_attempt.isoformat(),
+        })
+
+    return jsonify({
+        "summary": {
+            "total_quizzes": total_quizzes,
+            "total_score": total_score,
+            "highest_score": highest_score,
+            "average_score": average_score,
+            "passed": passed,
+            "failed": failed,
+            "accuracy": accuracy
+        },
+        "scores": detailed_scores
+    }), 200

@@ -219,8 +219,8 @@ def get_quizzes_by_chapter(chapter_id):
         quiz_list.append({
             "quiz_id": q.quiz_id,
             "name": q.name,
-            "date_of_quiz": q.date_of_quiz.isoformat(),  # date as string
             "time_duration": q.time_duration,
+            "start_datetime": q.start_datetime.isoformat() if q.start_datetime else None,
             "total_marks": q.total_marks,
             "remarks": q.remarks,
             "is_active": q.is_active,
@@ -235,7 +235,7 @@ def create_quiz_for_chapter(chapter_id):
     data = request.get_json()
 
     # Validate required fields
-    required_fields = ['name', 'date_of_quiz', 'time_duration', 'total_marks', 'num_questions']
+    required_fields = ['name','time_duration','start_datetime','total_marks', 'num_questions']
     if not all(field in data and data[field] for field in required_fields):
         return jsonify({"message": "Missing required fields"}), 400
 
@@ -243,8 +243,8 @@ def create_quiz_for_chapter(chapter_id):
         new_quiz = Quiz(
             chapter_id=chapter_id,
             name=data['name'],
-            date_of_quiz=datetime.strptime(data['date_of_quiz'], "%Y-%m-%d").date(),
             time_duration=data['time_duration'],
+            start_datetime=datetime.strptime(data['start_datetime'], "%Y-%m-%dT%H:%M"),
             total_marks=data['total_marks'],
             remarks=data.get('remarks', ''),
             num_questions=data['num_questions'],
@@ -256,8 +256,8 @@ def create_quiz_for_chapter(chapter_id):
         return jsonify({
             "quiz_id": new_quiz.quiz_id,
             "name": new_quiz.name,
-            "date_of_quiz": new_quiz.date_of_quiz.isoformat(),
             "time_duration": new_quiz.time_duration,
+            "start_datetime": new_quiz.start_datetime.isoformat(),
             "total_marks": new_quiz.total_marks,
             "remarks": new_quiz.remarks,
             "is_active": new_quiz.is_active,
@@ -281,10 +281,10 @@ def update_quiz(quiz_id):
 
     try:
         quiz.name = data.get('name', quiz.name)
-
-        date_str = data.get('date_of_quiz')
-        if date_str:
-            quiz.date_of_quiz = datetime.strptime(date_str, "%Y-%m-%d").date()
+            
+        start_dt = data.get('start_datetime')
+        if start_dt:
+            quiz.start_datetime = datetime.strptime(start_dt, "%Y-%m-%dT%H:%M")
 
         quiz.time_duration = data.get('time_duration', quiz.time_duration)
         quiz.total_marks = data.get('total_marks', quiz.total_marks)

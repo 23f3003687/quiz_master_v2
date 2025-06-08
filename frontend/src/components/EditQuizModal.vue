@@ -28,17 +28,17 @@
                 />
               </div>
 
+
               <div class="col-md-6">
-                <label class="form-label">Date of Quiz</label>
+                <label class="form-label">Start Time</label>
                 <input
-                  v-model="form.date_of_quiz"
-                  type="date"
+                  v-model="form.start_datetime"
+                  type="datetime-local"
                   class="form-control"
-                  required
                 />
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label class="form-label">Duration (minutes)</label>
                 <input
                   v-model="form.time_duration"
@@ -79,7 +79,11 @@
 
               <div class="col-md-6">
                 <label class="form-label">Tags (comma separated)</label>
-                <input v-model="form.tags" type="text" class="form-control" />
+                <input
+                  v-model="form.tags"
+                  type="text"
+                  class="form-control"
+                />
               </div>
             </div>
 
@@ -109,13 +113,19 @@ export default {
   },
   data() {
     return {
-      form: { ...this.quiz },
+      form: {
+        ...this.quiz,
+        start_datetime: this.quiz.start_datetime
+          ? this.quiz.start_datetime.slice(0, 16) // ensure datetime-local format
+          : "",
+      },
     };
   },
   methods: {
     async submitUpdate() {
       try {
         const token = localStorage.getItem("access_token");
+
         await axios.put(
           `http://localhost:5000/admin/quizzes/${this.form.quiz_id}`,
           JSON.stringify(this.form),
@@ -126,6 +136,7 @@ export default {
             },
           }
         );
+
         this.$emit("updated");
         this.$emit("flash", {
           message: "Quiz updated successfully!",

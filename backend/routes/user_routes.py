@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db ,User, Score, Subject, Chapter, Quiz, Question, UserAnswer
-from datetime import datetime
+from datetime import datetime, timedelta
 user_bp = Blueprint('user', __name__)
 
 # backend/routes/user_routes.py
@@ -104,8 +104,8 @@ def get_quizzes_by_subject(subject_id):
                 quiz_data = {
                     'quiz_id': quiz.quiz_id,
                     'name': quiz.name,
-                    'date_of_quiz': quiz.date_of_quiz.isoformat() if quiz.date_of_quiz else None,
                     'time_duration': quiz.time_duration,
+                    'start_datetime': quiz.start_datetime.isoformat() if quiz.start_datetime else None,
                     'total_marks': quiz.total_marks,
                     'num_questions': quiz.num_questions,
                     'remarks': quiz.remarks,
@@ -125,43 +125,53 @@ def get_quizzes_by_subject(subject_id):
         print("Error:", e)
         return jsonify({'error': 'Something went wrong'}), 500
     
+    
 @user_bp.route("/quiz/<int:quiz_id>/attempt", methods=["GET", "OPTIONS"])
 @cross_origin()
 def get_quiz_attempt(quiz_id):
     if request.method == "OPTIONS":
         return '', 200
-
     from flask_jwt_extended import verify_jwt_in_request
     verify_jwt_in_request()
-
+    
     quiz = Quiz.query.filter_by(quiz_id=quiz_id).first()
     if not quiz:
         return jsonify({"error": "Quiz not found"}), 404
 
-    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+
+    now = datetime.utcnow()
+    start_time = quiz.start_datetime
+    end_time = start_time + timedelta(minutes=quiz.time_duration)
+
+    if now < start_time:
+        return jsonify({"error": "Quiz has not started yet. Please check the Quiz Datetime again."}), 403
+    elif now > end_time:
+        return jsonify({"error": "Quiz has expired."}), 403
+    elif not quiz.is_active:
+        return jsonify({"error": "Quiz is not currently active."}), 403
 
     quiz_data = {
         "quiz_id": quiz.quiz_id,
         "name": quiz.name,
         "time_duration": quiz.time_duration,
         "total_marks": quiz.total_marks,
+        "subject_id": quiz.chapter.subject.subject_id,
     }
 
-    questions_data = []
-    for q in questions:
-        questions_data.append({
-            "question_id": q.question_id,
-            "question_statement": q.question_statement,
-            "option1": q.option1,
-            "option2": q.option2,
-            "option3": q.option3,
-            "option4": q.option4,
-        })
+    questions_data = [{
+        "question_id": q.question_id,
+        "question_statement": q.question_statement,
+        "option1": q.option1,
+        "option2": q.option2,
+        "option3": q.option3,
+        "option4": q.option4,
+    } for q in quiz.questions]
 
     return jsonify({
         "quiz": quiz_data,
         "questions": questions_data
     })
+
 
     
 @user_bp.route('/submit-quiz/<int:quiz_id>', methods=['POST', 'OPTIONS'])

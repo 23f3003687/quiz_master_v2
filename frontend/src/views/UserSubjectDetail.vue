@@ -25,7 +25,7 @@
               :key="quiz.quiz_id"
             >
               <div
-                class="card h-100 shadow-lg p-3 border-start transition hover-card border-3 "
+                class="card h-100 shadow-lg p-3 border-start transition hover-card border-3"
               >
                 <div class="card-body">
                   <h5 class="card-title">{{ quiz.name }}</h5>
@@ -52,11 +52,13 @@
                   </p>
                   <hr />
                   <p>
-                    <strong>Date:</strong> {{ formatDate(quiz.date_of_quiz) }}
-                  </p>
-                  <p>
                     <strong>Duration:</strong> {{ quiz.time_duration }} mins
                   </p>
+                  <p>
+                    <strong>Start Date & Time:</strong>
+                    {{ formatDate(quiz.start_datetime) }}
+                  </p>
+
                   <p><strong>Total Marks:</strong> {{ quiz.total_marks }}</p>
                   <p>
                     <strong>No. of Questions:</strong> {{ quiz.num_questions }}
@@ -124,7 +126,7 @@
 import axios from "axios";
 import UserSidebar from "@/components/UserSidebar.vue";
 import UserNavbar from "@/components/UserNavbar.vue";
-import { Modal } from 'bootstrap'
+import { Modal } from "bootstrap";
 
 export default {
   name: "UserSubjectDetail",
@@ -141,16 +143,20 @@ export default {
     };
   },
   methods: {
-  confirmStartQuiz(quiz) {
-      this.selectedQuiz = quiz
-      const modal = new Modal(document.getElementById('startQuizModal'))
-      modal.show()
+    confirmStartQuiz(quiz) {
+      this.selectedQuiz = quiz;
+      const modal = new Modal(document.getElementById("startQuizModal"));
+      modal.show();
     },
     startQuizConfirmed() {
       // Navigate to quiz attempt page with quizId
-      this.$router.push({ name: 'QuizAttempt', params: { quizId: this.selectedQuiz.quiz_id } })
+      this.$router.push({
+        name: "QuizAttempt",
+        params: { quizId: this.selectedQuiz.quiz_id },
+        query: {subjectId: this.subjectId },
+      });
     },
-  
+
     async fetchSubject() {
       try {
         const res = await axios.get("http://localhost:5000/user/subjects", {
@@ -182,7 +188,13 @@ export default {
     formatDate(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
-      return d.toDateString();
+      return d.toLocaleString([], {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     },
   },
   async mounted() {

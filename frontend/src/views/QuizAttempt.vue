@@ -9,7 +9,7 @@
       <UserNavbar class="bg-white shadow-sm" />
 
       <!-- Quiz Content -->
-      <div class="container mt-4 position-relative">
+      <div v-if="!hasError" class="container mt-4 position-relative">
         <!-- Timer -->
         <div class="position-absolute top-0 end-0 mt-2 me-3">
           <span class="badge bg-danger fs-6 px-3 py-2">
@@ -85,7 +85,7 @@ export default {
     UserSidebar,
     UserNavbar,
   },
-  props: ["quizId"],
+  props: ["quizId", "subjectId"],
   data() {
     return {
       quiz: {},
@@ -94,6 +94,8 @@ export default {
       selectedAnswers: {},
       timer: null,
       timeLeft: 600, // default: 10 minutes
+      hasError: false,
+      errorMessage: "",
     };
   },
   computed: {
@@ -136,12 +138,23 @@ export default {
         .then((res) => {
           this.quiz = res.data.quiz;
           this.questions = res.data.questions;
+          this.subjectId = res.data.quiz.subject_id;
           this.timeLeft = this.quiz.time_duration * 60; // minutes to seconds
         })
         .catch((err) => {
-          console.error("Error fetching quiz data:", err);
+          this.hasError = true;
+          if (err.response && err.response.status === 403) {
+            this.errorMessage = err.response.data.error;
+            alert(this.errorMessage);
+            const sid = this.subjectId || this.$route.query.subjectId;
+            this.$router.push(`/user/subject/${sid}`);
+          } else {
+            this.errorMessage = "Something went wrong while fetching the quiz.";
+            alert(this.errorMessage);
+          }
         });
     },
+
     startTimer() {
       this.timer = setInterval(() => {
         if (this.timeLeft > 0) {

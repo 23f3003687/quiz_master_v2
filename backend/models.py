@@ -60,8 +60,8 @@ class Quiz(db.Model):
     quiz_id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.chapter_id'), nullable=False)
     name = db.Column(db.String(120), nullable=False)
-    date_of_quiz = db.Column(db.Date, nullable=False)
-    time_duration = db.Column(db.String(10), nullable=False)  # Format: HH:MM
+    start_datetime = db.Column(db.DateTime, nullable=False)
+    time_duration = db.Column(db.Integer, nullable=False)  
     total_marks = db.Column(db.Integer, nullable=False)
     remarks = db.Column(db.Text, nullable=True)
     is_active = db.Column(db.Boolean, default=True)

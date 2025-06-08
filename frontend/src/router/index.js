@@ -58,12 +58,16 @@ const routes = [
   props: true,
   
 },
- { 
-  path: '/user/quiz/:quizId/attempt',
-  name: 'QuizAttempt',
-  component: () => import('@/views/QuizAttempt.vue'),
-  props: true,
+ {
+  path: "/user/quiz/:quizId/attempt",
+  name: "QuizAttempt",
+  component: () => import("@/views/QuizAttempt.vue"),
+  props: route => ({
+    quizId: route.params.quizId,
+    subjectId: route.query.subjectId || null
+  })
 },
+
 {
   path: '/user/scorecard/:score_id',
   name: 'ScoreCard',

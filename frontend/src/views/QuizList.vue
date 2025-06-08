@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex vh-100 overflow-hidden">
+  <div class="d-flex vh-100 ">
     <!-- Sidebar on the left -->
     <Sidebar class="bg-dark text-white" />
 
@@ -58,15 +58,6 @@
                     required
                   />
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label">Date of Quiz</label>
-                  <input
-                    v-model="Quiz.date_of_quiz"
-                    type="date"
-                    class="form-control"
-                    required
-                  />
-                </div>
                 <div class="col-md-4">
                   <label class="form-label">Duration (minutes)</label>
                   <input
@@ -76,6 +67,16 @@
                     required
                   />
                 </div>
+                <div class="col-md-6">
+                  <label class="form-label">Start Time</label>
+                  <input
+                    v-model="Quiz.start_datetime"
+                    type="datetime-local"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
                 <div class="col-md-4">
                   <label class="form-label">Total Marks</label>
                   <input
@@ -130,8 +131,8 @@
               <thead class="table-dark text-center align-middle">
                 <tr>
                   <th>Name</th>
-                  <th>Date</th>
                   <th>Duration</th>
+                  <th>Start Time</th>
                   <th>Total Marks</th>
                   <th>No. of Questions</th>
                   <th>Remarks</th>
@@ -146,8 +147,8 @@
                   class="text-center align-middle"
                 >
                   <td>{{ quiz.name }}</td>
-                  <td>{{ quiz.date_of_quiz }}</td>
                   <td>{{ quiz.time_duration }}</td>
+                  <td>{{ formatDateTime(quiz.start_datetime) }}</td>
                   <td>{{ quiz.total_marks }}</td>
                   <td>{{ quiz.num_questions }}</td>
                   <td>{{ quiz.remarks }}</td>
@@ -227,8 +228,8 @@ export default {
       showCreateForm: false,
       Quiz: {
         name: "",
-        date_of_quiz: "",
         time_duration: "",
+        start_datetime: "",
         total_marks: null,
         num_questions: "",
         remarks: "",
@@ -253,6 +254,18 @@ export default {
     },
   },
   methods: {
+    formatDateTime(datetimeStr) {
+      if (!datetimeStr) return "-";
+      const options = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
+      return new Date(datetimeStr).toLocaleString(undefined, options);
+    },
+
     handleFlash({ message, type }) {
       this.flashMessage = message;
       this.flashType = type;
@@ -287,7 +300,6 @@ export default {
       // Reset form
       this.Quiz = {
         name: "",
-        date_of_quiz: "",
         time_duration: "",
         total_marks: null,
         num_questions: "",

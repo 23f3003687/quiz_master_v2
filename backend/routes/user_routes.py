@@ -4,6 +4,7 @@ from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db ,User, Score, Subject, Chapter, Quiz, Question, UserAnswer
 from datetime import datetime, timedelta
+import pytz
 user_bp = Blueprint('user', __name__)
 
 # backend/routes/user_routes.py
@@ -139,9 +140,18 @@ def get_quiz_attempt(quiz_id):
         return jsonify({"error": "Quiz not found"}), 404
 
 
-    now = datetime.utcnow()
-    start_time = quiz.start_datetime
+     # Use IST timezone
+    ist = pytz.timezone("Asia/Kolkata")
+    now = datetime.now(ist)
+
+    # Localize start time if it's naive
+    if quiz.start_datetime.tzinfo is None:
+        start_time = ist.localize(quiz.start_datetime)
+    else:
+        start_time = quiz.start_datetime.astimezone(ist)
+
     end_time = start_time + timedelta(minutes=quiz.time_duration)
+
 
     if now < start_time:
         return jsonify({"error": "Quiz has not started yet. Please check the Quiz Datetime again."}), 403

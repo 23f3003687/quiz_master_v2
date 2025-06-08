@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from models import db, User
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
-import os
+import pytz
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -19,8 +19,9 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password, password):
-        # Update last_login
-        user.last_login = datetime.utcnow()
+        # Store last_login in IST
+        ist = pytz.timezone("Asia/Kolkata")
+        user.last_login = datetime.now(ist)
         db.session.commit()
 
         access_token = create_access_token(

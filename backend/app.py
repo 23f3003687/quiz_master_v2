@@ -10,6 +10,10 @@ from routes.user_routes import user_bp
 import os
 from flask_cors import CORS
 from flask_migrate import Migrate
+from celery_worker import make_celery
+
+
+
 
 
 
@@ -29,6 +33,8 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 # Initialize extensions
 jwt = JWTManager(app)
 db.init_app(app)
+
+celery = make_celery(app)
 
 migrate = Migrate(app, db)
 # Flask-Login setup

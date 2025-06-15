@@ -3,6 +3,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
 from models import db , Subject, Chapter, User, Quiz, Question
 from datetime import datetime
+
+
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/subjects', methods=['GET'])
@@ -252,7 +254,7 @@ def create_quiz_for_chapter(chapter_id):
         )
         db.session.add(new_quiz)
         db.session.commit()
-
+      
         return jsonify({
             "quiz_id": new_quiz.quiz_id,
             "name": new_quiz.name,

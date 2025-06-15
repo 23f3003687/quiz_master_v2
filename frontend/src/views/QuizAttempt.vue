@@ -96,6 +96,7 @@ export default {
       timeLeft: 600, // default: 10 minutes
       hasError: false,
       errorMessage: "",
+      localSubjectId: null,
     };
   },
   computed: {
@@ -138,7 +139,7 @@ export default {
         .then((res) => {
           this.quiz = res.data.quiz;
           this.questions = res.data.questions;
-          this.subjectId = res.data.quiz.subject_id;
+          this.localSubjectId = res.data.quiz.subject_id;
           this.timeLeft = this.quiz.time_duration * 60; // minutes to seconds
         })
         .catch((err) => {
@@ -146,7 +147,10 @@ export default {
           if (err.response && err.response.status === 403) {
             this.errorMessage = err.response.data.error;
             alert(this.errorMessage);
-            const sid = this.subjectId || this.$route.query.subjectId;
+            const sid =
+              this.localSubjectId ||
+              this.subjectId ||
+              this.$route.query.subjectId;
             this.$router.push(`/user/subject/${sid}`);
           } else {
             this.errorMessage = "Something went wrong while fetching the quiz.";

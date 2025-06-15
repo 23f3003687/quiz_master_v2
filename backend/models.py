@@ -64,7 +64,6 @@ class Quiz(db.Model):
     time_duration = db.Column(db.Integer, nullable=False)  
     total_marks = db.Column(db.Integer, nullable=False)
     remarks = db.Column(db.Text, nullable=True)
-    is_active = db.Column(db.Boolean, default=True)
     num_questions = db.Column(db.Integer, nullable=False, default=0)
     tags = db.Column(db.String(255), nullable=True)
 

@@ -225,7 +225,6 @@ def get_quizzes_by_chapter(chapter_id):
             "start_datetime": q.start_datetime.isoformat() if q.start_datetime else None,
             "total_marks": q.total_marks,
             "remarks": q.remarks,
-            "is_active": q.is_active,
             "num_questions": q.num_questions,
             "tags": q.tags,
         })
@@ -262,7 +261,6 @@ def create_quiz_for_chapter(chapter_id):
             "start_datetime": new_quiz.start_datetime.isoformat(),
             "total_marks": new_quiz.total_marks,
             "remarks": new_quiz.remarks,
-            "is_active": new_quiz.is_active,
             "num_questions": new_quiz.num_questions,
             "tags": new_quiz.tags,
         }), 201

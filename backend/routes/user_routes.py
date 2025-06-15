@@ -157,8 +157,7 @@ def get_quiz_attempt(quiz_id):
         return jsonify({"error": "Quiz has not started yet. Please check the Quiz Datetime again."}), 403
     elif now > end_time:
         return jsonify({"error": "Quiz has expired."}), 403
-    elif not quiz.is_active:
-        return jsonify({"error": "Quiz is not currently active."}), 403
+   
 
     quiz_data = {
         "quiz_id": quiz.quiz_id,

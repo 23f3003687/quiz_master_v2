@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
 from models import db, User
@@ -9,59 +9,15 @@ from routes.admin_routes import admin_bp
 from routes.user_routes import user_bp
 import os
 from flask_cors import CORS
+from config import Config
 from flask_migrate import Migrate
-from celery_worker import make_celery
 
+load_dotenv()
 
-
-
-
-
-
-# Initialize Flask app
-app = Flask(__name__, template_folder='templates')
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
-
-# Configurations
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_master.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-
-
-
-# Initialize extensions
-jwt = JWTManager(app)
-db.init_app(app)
-
-celery = make_celery(app)
-
-migrate = Migrate(app, db)
-# Flask-Login setup
 login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
+jwt = JWTManager()
+migrate = Migrate()
 
-# # Blueprints
-app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(admin_bp, url_prefix='/admin')
-app.register_blueprint(user_bp, url_prefix='/user')
-
-# Flask-Login user loader
-@login_manager.user_loader
-def load_user(user_id):
-   return User.query.get(int(user_id))
-
-
-@jwt.invalid_token_loader
-def invalid_token_callback(error: str):
-    return jsonify({"msg": "Invalid token"}), 422
-
-@jwt.unauthorized_loader
-def unauthorized_callback(reason: str):
-    return jsonify({"msg": "Missing or invalid token"}), 401
-
-# ✅ Create admin user using pre-hashed password
 def create_admin_user():
     admin_email = os.getenv('ADMIN_EMAIL')
     admin_password_hash = os.getenv('ADMIN_PASSWORD_HASH')  # Already hashed
@@ -86,18 +42,56 @@ def create_admin_user():
     else:
         print("ℹ️ Admin user already exists.")
 
-# ✅ Ensure DB and admin are ready before serving requests
-with app.app_context():
-    db.create_all()
-    create_admin_user()
+def create_app():
+    app = Flask(__name__, template_folder='templates')
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
-# Root redirect
-@app.route('/')
-def index():
-    return jsonify({"message": "Quiz Master API is running."})
+    # Configurations
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_master.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+    app.config.from_object(Config)
 
+    # Initialize extensions
+    db.init_app(app)
+    jwt.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    migrate.init_app(app, db)
 
+    # Register Blueprints
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(user_bp, url_prefix='/user')
 
-# Run server
+    # JWT Error Handlers
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error: str):
+        return jsonify({"msg": "Invalid token"}), 422
+
+    @jwt.unauthorized_loader
+    def unauthorized_callback(reason: str):
+        return jsonify({"msg": "Missing or invalid token"}), 401
+
+    # Flask-Login user loader
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # Root route
+    @app.route('/')
+    def index():
+        return jsonify({"message": "Quiz Master API is running."})
+
+    # Ensure DB and admin user exist
+    with app.app_context():
+        db.create_all()
+        create_admin_user()
+
+    return app
+
+# Run the app directly
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)

@@ -1,30 +1,9 @@
-from celery import Celery
-from flask import Flask
-from models import db
-from config import Config
+from app import create_app
+from celery_utils import celery, make_celery
 
-def make_celery(app):
-    celery = Celery(
-        app.import_name,
-        backend=Config.CELERY_RESULT_BACKEND,
-        broker=Config.CELERY_BROKER_URL,
-    )
-    celery.conf.update(app.config)
+# Tasks must be imported after Celery setup
+from tasks.daily_reminder import send_daily_quiz_reminders
+from tasks.monthly_report import send_monthly_reports
 
-    # Bind Flask app context to Celery tasks
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
-
-# Create Flask app and bind Celery
-def create_celery():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    db.init_app(app)
-    return make_celery(app)
-
-celery = create_celery()
+flask_app = create_app()
+make_celery(flask_app)  # Binds context to celery

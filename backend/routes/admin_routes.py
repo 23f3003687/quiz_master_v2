@@ -1,11 +1,22 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db , Subject, Chapter, User, Quiz, Question
 from datetime import datetime
+from tasks.daily_reminder import send_daily_quiz_reminders
 
 
 admin_bp = Blueprint('admin', __name__)
+@admin_bp.route('/trigger-daily-reminders', methods=['GET'])
+@jwt_required
+def trigger_reminders():
+    current_user = get_jwt_identity()
+    if current_user['role'] != 'admin':
+        return jsonify({"error": "Unauthorized"}), 403
+
+    send_daily_quiz_reminders.delay()
+    return jsonify({"message": "Reminders scheduled"}), 200
+
 
 @admin_bp.route('/subjects', methods=['GET'])
 @jwt_required()

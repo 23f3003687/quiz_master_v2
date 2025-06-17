@@ -1,5 +1,5 @@
 from celery_utils import celery
-from models import db, User, Quiz, Score
+from models import db, User, Score
 from utils.email_helper import send_email
 from datetime import date
 from sqlalchemy import func
@@ -16,12 +16,12 @@ def send_daily_quiz_reminders():
         # Check if the user has attempted any quiz today
         attempted_today = (
             db.session.query(Score)
-            .filter(Score.user_id == user.user_id, func.date(Score.timestamp) == today)
+            .filter(Score.user_id == user.user_id, func.date(Score.time_stamp_of_attempt) == today)
             .first()
         )
 
         if not attempted_today:
             subject = "📅 Daily Reminder: Attempt a Quiz Today!"
-            body = f"Hi {user.name},\n\nDon't forget to take your daily quiz today on QuizMaster!\n\nGood luck!\n\n– QuizMaster Team"
+            body = f"Hi {user.full_name},\n\nDon't forget to take your daily quiz today on QuizMaster!\n\nGood luck!\n\n– QuizMaster Team"
             send_email(user.email, subject, body)
             print(f"📤 Reminder sent to: {user.email}")

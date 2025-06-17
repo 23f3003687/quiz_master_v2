@@ -7,8 +7,8 @@ load_dotenv()
 # ✅ Define celery instance globally so it can be imported
 celery = Celery(
     __name__,
-    broker=os.getenv("CELERY_BROKER_URL"),
-    backend=os.getenv("CELERY_RESULT_BACKEND")
+    broker=os.getenv("broker_url"),
+    backend=os.getenv("result_backend")
 )
 
 # ✅ Wrap config/app binding in a function

@@ -1,5 +1,7 @@
 from app import create_app
 from celery_utils import celery, make_celery
+import celery_beat  # This ensures beat_schedule is loaded
+
 
 # Tasks must be imported after Celery setup
 from tasks.daily_reminder import send_daily_quiz_reminders

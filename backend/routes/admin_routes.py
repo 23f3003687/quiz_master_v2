@@ -1,6 +1,6 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt
 from models import db , Subject, Chapter, User, Quiz, Question
 from datetime import datetime
 from tasks.daily_reminder import send_daily_quiz_reminders
@@ -10,7 +10,7 @@ admin_bp = Blueprint('admin', __name__)
 @admin_bp.route('/trigger-daily-reminders', methods=['GET'])
 @jwt_required
 def trigger_reminders():
-    current_user = get_jwt_identity()
+    current_user = get_jwt()
     if current_user['role'] != 'admin':
         return jsonify({"error": "Unauthorized"}), 403
 
@@ -22,11 +22,8 @@ def trigger_reminders():
 @jwt_required()
 def get_subjects(): #show all the subjects on dashboard
     claims = get_jwt()
-    is_admin = claims.get("is_admin", False)
-
-
-    if not is_admin:
-        return jsonify({"error": "Unauthorized"}), 403
+    if not claims or not claims.get("is_admin", False):
+       return jsonify({"error": "Unauthorized"}), 403
 
     try:
         subjects = Subject.query.all()
@@ -46,10 +43,8 @@ def get_subjects(): #show all the subjects on dashboard
 @jwt_required()
 def create_subject():
     claims = get_jwt()
-    is_admin = claims.get("is_admin", False)
-
-    if not is_admin:
-        return jsonify({"error": "Unauthorized"}), 403
+    if not claims or not claims.get("is_admin", False):
+       return jsonify({"error": "Unauthorized"}), 403
 
     data = request.get_json()
     name = data.get("name")
@@ -76,10 +71,8 @@ def create_subject():
 @jwt_required()
 def get_subject_details(subject_id):
     claims = get_jwt()
-    is_admin = claims.get("is_admin", False)
-
-    if not is_admin:
-        return jsonify({"error": "Unauthorized"}), 403
+    if not claims or not claims.get("is_admin", False):
+       return jsonify({"error": "Unauthorized"}), 403
 
     try:
         subject = Subject.query.get(subject_id)
@@ -106,11 +99,8 @@ def get_subject_details(subject_id):
 @jwt_required()
 def update_subject(subject_id):
     claims = get_jwt()
-    is_admin = claims.get("is_admin", False)
-
-    if not is_admin:
-        return jsonify({"error": "Unauthorized"}), 403
-
+    if not claims or not claims.get("is_admin", False):
+       return jsonify({"error": "Unauthorized"}), 403
     subject = Subject.query.get(subject_id)
     if not subject:
         return jsonify({"error": "Subject not found"}), 404
@@ -138,10 +128,8 @@ def update_subject(subject_id):
 @jwt_required()
 def delete_subject(subject_id):
     claims = get_jwt()
-    is_admin = claims.get("is_admin", False)
-
-    if not is_admin:
-        return jsonify({"error": "Unauthorized"}), 403
+    if not claims or not claims.get("is_admin", False):
+       return jsonify({"error": "Unauthorized"}), 403
     subject = Subject.query.get(subject_id)
     if not subject:
         return jsonify({'error': 'Subject not found'}), 404

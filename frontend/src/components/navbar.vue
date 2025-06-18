@@ -10,19 +10,43 @@
       <span class="navbar-brand fw-bold">Quiz Master</span>
 
       <!-- Search Bar -->
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Search..."
-        style="max-width: 600px"
-      />
+      <div
+        class="d-flex align-items-center gap-2"
+        style="max-width: 600px; width: 100%"
+      >
+        <input
+          type="text"
+          class="form-control"
+          v-model="query"
+          @keyup.enter="performSearch"
+          placeholder="Search anything like 'users', 'algebra', 'questions'..."
+        />
+        <button class="btn btn-outline-primary" @click="performSearch">
+          Search
+        </button>
+      </div>
     </div>
   </nav>
 </template>
 
 <script>
 export default {
-  name: "Navbar",
+  name: "AdminNavbar",
+  data() {
+    return {
+      query: "",
+    };
+  },
+  methods: {
+    performSearch() {
+      if (this.query.trim()) {
+        this.$router.push({
+          name: "AdminSearch",
+          query: { query: this.query.trim() },
+        });
+      }
+    },
+  },
 };
 </script>
 

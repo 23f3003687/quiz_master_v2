@@ -5,7 +5,7 @@ import AdminDashboard from "../views/AdminDashboard.vue";
 import SubjectDetail from "@/views/SubjectDetail.vue";
 import UserSubjects from "@/views/UserSubjects.vue";
 import UserSubjectDetail from "@/views/UserSubjectDetail.vue";
-import UserDashboard from '@/views/UserDashboard.vue'
+import UserDashboard from "@/views/UserDashboard.vue";
 import QuizList from "@/views/QuizList.vue";
 import Users from "../components/Users.vue";
 const routes = [
@@ -52,43 +52,49 @@ const routes = [
     component: UserSubjects,
   },
   {
-  path: "/user/subject/:subjectId",
-  name: "UserSubjectDetail",
-  component: UserSubjectDetail,
-  props: true,
-  
-},
- {
-  path: "/user/quiz/:quizId/attempt",
-  name: "QuizAttempt",
-  component: () => import("@/views/QuizAttempt.vue"),
-  props: route => ({
-    quizId: route.params.quizId,
-    subjectId: route.query.subjectId || null
-  })
-},
+    path: "/user/subject/:subjectId",
+    name: "UserSubjectDetail",
+    component: UserSubjectDetail,
+    props: true,
+  },
+  {
+    path: "/user/quiz/:quizId/attempt",
+    name: "QuizAttempt",
+    component: () => import("@/views/QuizAttempt.vue"),
+    props: (route) => ({
+      quizId: route.params.quizId,
+      subjectId: route.query.subjectId || null,
+    }),
+  },
 
-{
-  path: '/user/scorecard/:score_id',
-  name: 'ScoreCard',
-  component: () => import('@/views/ScoreCard.vue'),
-  props: true,
-},
-{
-  path: "/user/score/history",
-  name: "QuizHistory",
-  component: () => import("@/views/QuizHistory.vue"),
-},
-{
-  path: '/user/summary',
-  name: 'QuizSummary',
-  component: () => import('@/views/QuizSummary.vue'),
-}
-
-
-
-
-
+  {
+    path: "/user/scorecard/:score_id",
+    name: "ScoreCard",
+    component: () => import("@/views/ScoreCard.vue"),
+    props: true,
+  },
+  {
+    path: "/user/score/history",
+    name: "QuizHistory",
+    component: () => import("@/views/QuizHistory.vue"),
+  },
+  {
+    path: "/user/summary",
+    name: "QuizSummary",
+    component: () => import("@/views/QuizSummary.vue"),
+  },
+  {
+    path: "/admin/search",
+    name: "AdminSearch",
+    component: () => import("@/views/AdminSearch.vue"),
+    
+  },
+  {
+    path: "/user/search",
+    name: "UserSearch",
+    component: () => import("@/views/UserSearch.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({

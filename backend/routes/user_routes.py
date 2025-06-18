@@ -375,3 +375,51 @@ def summary_report():
         },
         "scores": detailed_scores
     }), 200
+
+@user_bp.route('/search/user', methods=['GET'])
+@jwt_required()
+def user_search():
+  
+    search_type = request.args.get("type")
+    query = request.args.get("query", "").lower()
+
+    if not search_type or not query:
+        return jsonify({"error": "Missing search parameters"}), 400
+
+    results = []
+
+    if search_type == "subjects":
+        subjects = Subject.query.filter(
+            (Subject.name.ilike(f"%{query}%")) |
+            (Subject.description.ilike(f"%{query}%"))
+        ).all()
+
+        results = [
+            {
+                "subject_id": s.subject_id,
+                "name": s.name,
+                "description": s.description
+            } for s in subjects
+        ]
+
+    elif search_type == "quizzes":
+        quizzes = Quiz.query.join(Chapter).join(Subject).filter(
+            (Quiz.name.ilike(f"%{query}%")) |
+            (Chapter.name.ilike(f"%{query}%")) |
+            (Subject.name.ilike(f"%{query}%"))
+        ).all()
+
+        results = [
+            {
+                "quiz_id": q.quiz_id,
+                "name": q.name,
+                "chapter_name": q.chapter.name,
+                "subject_name": q.chapter.subject.name,
+                "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
+                "total_marks": q.total_marks
+            } for q in quizzes
+        ]
+    else:
+        return jsonify({"error": "Invalid search type"}), 400
+
+    return jsonify(results), 200

@@ -412,3 +412,105 @@ def get_all_users():
         for user in users
     ]
     return jsonify(user_list), 200
+
+@admin_bp.route('/search/admin', methods=['GET'])
+@jwt_required()
+def admin_search():
+    claims = get_jwt()
+    if not claims.get("is_admin", False):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    query = request.args.get("query", "").strip().lower()
+    if not query:
+        return jsonify({"error": "Missing query parameter"}), 400
+
+    results = []
+
+    # Handle keywords that fetch all items
+    if query in ["users", "user"]:
+        users = User.query.all()
+        results = [
+            {"type": "user", "user_id": u.user_id, "name": u.full_name, "email": u.email}
+            for u in users
+        ]
+
+    elif query in ["subjects", "subject"]:
+        subjects = Subject.query.all()
+        results = [
+            {"type": "subject", "subject_id": s.subject_id, "name": s.name, "description": s.description}
+            for s in subjects
+        ]
+
+    elif query in ["quizzes", "quiz"]:
+        quizzes = Quiz.query.all()
+        results = [
+            {
+                "type": "quiz",
+                "quiz_id": q.quiz_id,
+                "name": q.name,
+                "chapter_id": q.chapter_id,
+                "subject_id": q.chapter.subject.subject_id,
+                "subject_name": q.chapter.subject.name
+            }
+            for q in quizzes
+        ]
+
+    elif query in ["questions", "question"]:
+        questions = Question.query.all()
+        results = [
+            {"type": "question", "question_id": q.question_id, "question": q.question_statement}
+            for q in questions
+        ]
+
+    else:
+        # Free-text full search across all entities
+        # Users
+        users = User.query.filter(
+            (User.full_name.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%"))
+        ).all()
+        for u in users:
+            results.append({
+                "type": "user",
+                "user_id": u.user_id,
+                "name": u.full_name,
+                "email": u.email
+            })
+
+        # Subjects
+        subjects = Subject.query.filter(
+            (Subject.name.ilike(f"%{query}%")) | (Subject.description.ilike(f"%{query}%"))
+        ).all()
+        for s in subjects:
+            results.append({
+                "type": "subject",
+                "subject_id": s.subject_id,
+                "name": s.name,
+                "description": s.description
+            })
+
+        # Quizzes
+        quizzes = Quiz.query.filter(
+            Quiz.name.ilike(f"%{query}%")
+        ).all()
+        for q in quizzes:
+            results.append({
+                "type": "quiz",
+                "quiz_id": q.quiz_id,
+                "name": q.name,
+                "chapter_id": q.chapter_id,
+                "subject_id": q.chapter.subject.subject_id,
+                "subject_name": q.chapter.subject.name
+            })
+
+        # Questions
+        questions = Question.query.filter(
+            Question.question_statement.ilike(f"%{query}%")
+        ).all()
+        for q in questions:
+            results.append({
+                "type": "question",
+                "question_id": q.question_id,
+                "question": q.question_statement
+            })
+
+    return jsonify(results), 200

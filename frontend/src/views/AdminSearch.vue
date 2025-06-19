@@ -50,9 +50,13 @@
 
 <script>
 import axios from "axios";
+import Sidebar from "@/components/sidebar.vue"; 
+import Navbar from "@/components/navbar.vue";   
+
 
 export default {
   name: "AdminSearch",
+  components: { Sidebar, Navbar },
   data() {
     return {
       results: [],

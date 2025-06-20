@@ -1,22 +1,50 @@
 <template>
-  <div class="container mt-4">
-    <h3>Search Quizzes & Subjects</h3>
-    <div class="input-group mb-3">
-      <select v-model="type" class="form-select w-auto">
-        <option value="subjects">Subjects</option>
-        <option value="quizzes">Quizzes</option>
-      </select>
-      <input
-        type="text"
-        v-model="query"
-        class="form-control"
-        placeholder="Search..."
-      />
-      <button class="btn btn-primary" @click="search">Search</button>
-    </div>
-    <div v-if="results.length">
-      <div v-for="(item, i) in results" :key="i" class="card mb-2 p-2">
-        <pre>{{ item }}</pre>
+  <div class="d-flex vh-100 overflow-hidden">
+    <!-- Sidebar -->
+    <Sidebar class="bg-dark text-white" />
+
+    <!-- Main content -->
+    <div class="flex-grow-1 d-flex flex-column">
+      <!-- Navbar -->
+      <UserNavbar class="bg-white shadow-sm" />
+
+      <!-- Content container -->
+      <div class="container mt-4 pt-5 flex-grow-1 overflow-auto">
+        <h3 class="mb-4">Search Results</h3>
+
+        <div v-if="loading" class="text-muted">Loading...</div>
+        <div v-else-if="results.length === 0" class="text-danger">
+          No results found.
+        </div>
+
+        <div v-else>
+          <div
+            v-for="(item, index) in results"
+            :key="index"
+            class="card mb-3 shadow-sm"
+            style="cursor: pointer"
+            @click="goToDetailPage(item)"
+          >
+            <div class="card-body">
+              <h5 class="card-title text-primary">
+                {{ getTitle(item) }}
+                <span class="badge bg-secondary text-capitalize float-end">
+                  {{ item.type }}
+                </span>
+              </h5>
+              <hr />
+              <div
+                v-for="(value, key) in item"
+                :key="key"
+                v-if="key !== 'type' && !isTitleKey(key)"
+                class="mb-1"
+              >
+                <strong class="text-capitalize">{{ formatKey(key) }}:</strong>
+                <span>{{ value }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -24,26 +52,92 @@
 
 <script>
 import axios from "axios";
+import Sidebar from "@/components/UserSidebar.vue";
+import UserNavbar from "@/components/UserNavbar.vue";
 
 export default {
+  name: "UserSearch",
+  components: {
+    Sidebar,
+    UserNavbar,
+  },
   data() {
     return {
-      type: "subjects",
-      query: "",
       results: [],
+      loading: false,
     };
   },
   methods: {
-    async search() {
+    async fetchResults() {
+      const query = this.$route.query.query;
+      if (!query) return;
+
+      this.loading = true;
+
       try {
-        const res = await axios.get(`/user/search/user`, {
-          params: { type: this.type, query: this.query },
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get(
+          `http://localhost:5000/user/search?query=${encodeURIComponent(query)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (Array.isArray(response.data)) {
+          this.results = response.data.map((item) => {
+            if (item.subject_id) return { ...item, type: "subject" };
+            if (item.quiz_id) return { ...item, type: "quiz" };
+            return { ...item, type: "unknown" };
+          });
+        } else {
+          this.results = [];
+        }
+      } catch (error) {
+        console.error("User search failed:", error);
+        this.results = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    getTitle(item) {
+      return item.name || "Result";
+    },
+    isTitleKey(key) {
+      return ["name"].includes(key);
+    },
+    formatKey(key) {
+      return key.replace(/_/g, " ");
+    },
+
+    goToDetailPage(item) {
+      if (item.type === "subject") {
+        this.$router.push(`/user/subject/${item.subject_id}`);
+      } else if (item.type === "quiz") {
+        this.$router.push({
+          name: "QuizAttempt",
+          params: { quizId: item.quiz_id },
+          query: { subjectId: item.subject_id || null },
         });
-        this.results = res.data;
-      } catch (err) {
-        alert("Search failed");
+      } else {
+        console.warn("Navigation not defined for this type.");
       }
     },
   },
+  mounted() {
+    this.fetchResults();
+  },
+  watch: {
+    "$route.query.query": "fetchResults",
+  },
 };
 </script>
+
+<style scoped>
+.card-title {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+</style>

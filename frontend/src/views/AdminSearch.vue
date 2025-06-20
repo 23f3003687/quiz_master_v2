@@ -20,9 +20,10 @@
             v-for="(item, index) in results"
             :key="index"
             class="card mb-3 shadow-sm"
+            style="cursor: pointer"
+            @click="goToDetailPage(item)"
           >
             <div class="card-body">
-              <!-- Highlight key field -->
               <h5 class="card-title text-primary">
                 {{ getTitle(item) }}
                 <span class="badge bg-secondary text-capitalize float-end">
@@ -30,7 +31,6 @@
                 </span>
               </h5>
               <hr />
-              <!-- Dynamically render key-value pairs -->
               <div
                 v-for="(value, key) in item"
                 :key="key"
@@ -50,9 +50,8 @@
 
 <script>
 import axios from "axios";
-import Sidebar from "@/components/sidebar.vue"; 
-import Navbar from "@/components/navbar.vue";   
-
+import Sidebar from "@/components/sidebar.vue";
+import Navbar from "@/components/navbar.vue";
 
 export default {
   name: "AdminSearch",
@@ -115,6 +114,27 @@ export default {
     },
     formatKey(key) {
       return key.replace(/_/g, " ");
+    },
+    goToDetailPage(item) {
+      if (item.type === "user") {
+        this.$router.push(`/users`);
+      } else if (item.type === "subject") {
+        const subjectId = item.subject_id || item.id; // 🔑 Corrected ID
+        this.$router.push(`/admin/subject/${subjectId}`);
+      } else if (item.type === "chapter") {
+        this.$router.push(`/admin/subject/${item.subject_id}`);
+      } else if (item.type === "quiz") {
+        const chapterId = item.chapter_id;
+        const chapterName = item.chapter_name || item.subject_name || "chapter";
+        this.$router.push({
+          name: "QuizList",
+          params: { chapterId, chapterName },
+        });
+      } else if (item.type === "question") {
+        alert("Navigation for individual question not implemented.");
+      } else {
+        console.warn("Unknown type. Cannot navigate.");
+      }
     },
   },
   mounted() {

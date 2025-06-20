@@ -434,10 +434,17 @@ def admin_search():
             for u in users
         ]
 
+    elif query in ["chapters", "chapter"]:
+        chapters = Chapter.query.all()
+        results = [
+            {"type": "chapter", "subject_id": c.subject_id, "name": c.name, "description": c.description}
+            for c in chapters
+        ]
+        
     elif query in ["subjects", "subject"]:
         subjects = Subject.query.all()
         results = [
-            {"type": "subject", "subject_id": s.subject_id, "name": s.name, "description": s.description}
+            {"type": "subject", "subject_id": s.subject_id, "name": s.name, "description": s.description,"created_on":s.created_on}
             for s in subjects
         ]
 
@@ -485,7 +492,23 @@ def admin_search():
                 "type": "subject",
                 "subject_id": s.subject_id,
                 "name": s.name,
-                "description": s.description
+                "description": s.description,
+                "created_on":s.created_on
+            })
+            
+        
+        # Chapters
+        chapters = Chapter.query.filter(
+            (Chapter.name.ilike(f"%{query}%")) | (Chapter.description.ilike(f"%{query}%"))
+        ).all()
+        for c in chapters:
+            results.append({
+                "type": "chapter",
+                "chapter_id": c.chapter_id,
+                "name": c.name,
+                "description": c.description,
+                "subject_id":c.subject_id
+                
             })
 
         # Quizzes

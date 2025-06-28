@@ -376,9 +376,14 @@ def summary_report():
         "scores": detailed_scores
     }), 200
 
-@user_bp.route('/search/user', methods=['GET'])
-@jwt_required()
+@user_bp.route('/search', methods=['GET', 'OPTIONS'])
+@cross_origin()
 def user_search():
+    if request.method == 'OPTIONS':
+        return '', 200  # Let preflight pass
+    from flask_jwt_extended import verify_jwt_in_request
+    verify_jwt_in_request()  # Only verify for GET requests
+
     search_type = request.args.get("type", "").lower()
     query = request.args.get("query", "").strip().lower()
 

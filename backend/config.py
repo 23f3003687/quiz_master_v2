@@ -13,4 +13,4 @@ class Config:
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "quizmasterv2@gmail.com")  
-    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "cgoc rllo giii qowq")     
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")     

@@ -4,43 +4,55 @@
     <Sidebar class="bg-dark text-white" />
 
     <!-- Main content -->
-    <div class="flex-grow-1 d-flex flex-column">
+    <div class="flex-grow-1 d-flex flex-column" >
       <!-- Navbar -->
-      <UserNavbar class="bg-white shadow-sm" />
+      <UserNavbar class="bg-white shadow-sm"style="margin-left: 200px;" />
 
       <!-- Content container -->
-      <div class="container mt-4 pt-5 flex-grow-1 overflow-auto">
-        <h3 class="mb-4">Search Results</h3>
+      <div class="container-fluid mt-4 pt-5 overflow-auto">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-8">
+            <h3 class="mb-4">Search Results</h3>
 
-        <div v-if="loading" class="text-muted">Loading...</div>
-        <div v-else-if="results.length === 0" class="text-danger">
-          No results found.
-        </div>
+            <div v-if="loading" class="text-muted">Loading...</div>
+            <div v-else-if="results.length === 0" class="text-danger">
+              No results found.
+            </div>
 
-        <div v-else>
-          <div
-            v-for="(item, index) in results"
-            :key="index"
-            class="card mb-3 shadow-sm"
-            style="cursor: pointer"
-            @click="goToDetailPage(item)"
-          >
-            <div class="card-body">
-              <h5 class="card-title text-primary">
-                {{ getTitle(item) }}
-                <span class="badge bg-secondary text-capitalize float-end">
-                  {{ item.type }}
-                </span>
-              </h5>
-              <hr />
+            <div v-else>
               <div
-                v-for="(value, key) in item"
-                :key="key"
-                v-if="key !== 'type' && !isTitleKey(key)"
-                class="mb-1"
+                v-for="(item, index) in results"
+                :key="index"
+                class="card mb-4 shadow-sm"
+                style="cursor: pointer"
+                @click="goToDetailPage(item)"
               >
-                <strong class="text-capitalize">{{ formatKey(key) }}:</strong>
-                <span>{{ value }}</span>
+                <div class="card-body">
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-2"
+                  >
+                    <h5 class="card-title text-primary mb-0">
+                      {{ getTitle(item) }}
+                    </h5>
+                    <span class="badge bg-secondary text-capitalize">
+                      {{ item.type }}
+                    </span>
+                  </div>
+                  <hr />
+                  <div class="row">
+                    <div
+                      v-for="(value, key) in item"
+                      :key="key"
+                      v-if="key !== 'type' && !isTitleKey(key)"
+                      class="col-md-6 mb-2"
+                    >
+                      <strong class="text-capitalize"
+                        >{{ formatKey(key) }}:</strong
+                      >
+                      <span> {{ value }} </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

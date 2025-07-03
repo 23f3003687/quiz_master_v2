@@ -386,35 +386,61 @@ def user_search():
 
     results = []
 
-    # Subjects
-    subjects = Subject.query.filter(
-        (Subject.name.ilike(f"%{query}%")) |
-        (Subject.description.ilike(f"%{query}%"))
-    ).all()
-    for s in subjects:
-        results.append({
-            "type": "subject",
-            "subject_id": s.subject_id,
-            "name": s.name,
-            "description": s.description
-        })
+    # 🔍 Handle keyword-based results
+    if query in ["subject", "subjects"]:
+        subjects = Subject.query.all()
+        for s in subjects:
+            results.append({
+                "type": "subject",
+                "subject_id": s.subject_id,
+                "name": s.name,
+                "description": s.description
+            })
 
-    # Quizzes
-    quizzes = Quiz.query.join(Chapter).join(Subject).filter(
-        (Quiz.name.ilike(f"%{query}%")) |
-        (Chapter.name.ilike(f"%{query}%")) |
-        (Subject.name.ilike(f"%{query}%"))
-    ).all()
-    for q in quizzes:
-        results.append({
-            "type": "quiz",
-            "quiz_id": q.quiz_id,
-            "name": q.name,
-            "chapter_name": q.chapter.name,
-            "subject_id": q.chapter.subject.subject_id,
-            "subject_name": q.chapter.subject.name,
-            "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
-            "total_marks": q.total_marks
-        })
+    elif query in ["quiz", "quizzes"]:
+        quizzes = Quiz.query.join(Chapter).join(Subject).all()
+        for q in quizzes:
+            results.append({
+                "type": "quiz",
+                "quiz_id": q.quiz_id,
+                "name": q.name,
+                "chapter_name": q.chapter.name,
+                "subject_id": q.chapter.subject.subject_id,
+                "subject_name": q.chapter.subject.name,
+                "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
+                "total_marks": q.total_marks
+            })
+
+    else:
+        # 🔎 Free-text subject search
+        subjects = Subject.query.filter(
+            (Subject.name.ilike(f"%{query}%")) |
+            (Subject.description.ilike(f"%{query}%"))
+        ).all()
+        for s in subjects:
+            results.append({
+                "type": "subject",
+                "subject_id": s.subject_id,
+                "name": s.name,
+                "description": s.description
+            })
+
+        # 🔎 Free-text quiz search
+        quizzes = Quiz.query.join(Chapter).join(Subject).filter(
+            (Quiz.name.ilike(f"%{query}%")) |
+            (Chapter.name.ilike(f"%{query}%")) |
+            (Subject.name.ilike(f"%{query}%"))
+        ).all()
+        for q in quizzes:
+            results.append({
+                "type": "quiz",
+                "quiz_id": q.quiz_id,
+                "name": q.name,
+                "chapter_name": q.chapter.name,
+                "subject_id": q.chapter.subject.subject_id,
+                "subject_name": q.chapter.subject.name,
+                "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
+                "total_marks": q.total_marks
+            })
 
     return jsonify(results), 200

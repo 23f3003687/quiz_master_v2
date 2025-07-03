@@ -444,3 +444,11 @@ def user_search():
             })
 
     return jsonify(results), 200
+
+@user_bp.route("/export-quiz-history", methods=["POST"])
+@jwt_required()
+def export_quiz_history():
+    from tasks.export_quiz_history import export_user_quiz_history  # ✅ inside the route
+    user_id = get_jwt_identity()
+    task = export_user_quiz_history.delay(user_id)
+    return jsonify({"message": "Export started", "task_id": task.id}), 202

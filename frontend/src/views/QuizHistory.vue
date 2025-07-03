@@ -11,6 +11,18 @@
       <div class="container mt-4">
         <h3 class="mb-4">📘 Quiz History</h3>
 
+        <!-- Export Button -->
+        <div class="mb-3">
+          <button
+            class="btn btn-outline-success"
+            @click="exportQuizHistory"
+            :disabled="exporting"
+          >
+            <span v-if="exporting">📤 Exporting...</span>
+            <span v-else>📥 Export Quiz History</span>
+          </button>
+        </div>
+
         <div v-if="history.length === 0" class="alert alert-info">
           No quiz attempts found.
         </div>
@@ -75,6 +87,7 @@ export default {
   },
   setup() {
     const history = ref([]);
+    const exporting = ref(false);
 
     onMounted(async () => {
       const token = localStorage.getItem("access_token");
@@ -93,8 +106,38 @@ export default {
       }
     });
 
+    const exportQuizHistory = async () => {
+      exporting.value = true;
+      const token = localStorage.getItem("access_token");
+
+      try {
+        const res = await axios.post(
+          "http://localhost:5000/user/export-quiz-history",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const { task_id, message } = res.data;
+        console.log("Export Task Started:", task_id);
+        alert(
+          "✅ Export started! You can check the CSV file shortly in the backend static folder."
+        );
+      } catch (error) {
+        console.error("Export failed:", error);
+        alert("❌ Export failed.");
+      } finally {
+        exporting.value = false;
+      }
+    };
+
     return {
       history,
+      exporting,
+      exportQuizHistory,
     };
   },
 };

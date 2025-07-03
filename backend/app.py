@@ -11,6 +11,8 @@ import os
 from flask_cors import CORS
 from config import Config
 from flask_migrate import Migrate
+from celery_utils import make_celery  # ✅ Already done, most likely
+
 
 load_dotenv()
 

@@ -21,6 +21,17 @@
             <span v-if="exporting">📤 Exporting...</span>
             <span v-else>📥 Export Quiz History</span>
           </button>
+
+          <div v-if="downloadUrl" class="mt-2 alert alert-success">
+            ✅ Export ready.
+            <a :href="downloadUrl" download target="_blank"
+              >Click to Download CSV</a
+            >
+          </div>
+
+          <div v-if="exportError" class="mt-2 alert alert-danger">
+            ❌ {{ exportError }}
+          </div>
         </div>
 
         <div v-if="history.length === 0" class="alert alert-info">
@@ -88,6 +99,8 @@ export default {
   setup() {
     const history = ref([]);
     const exporting = ref(false);
+    const downloadUrl = ref("");
+    const exportError = ref("");
 
     onMounted(async () => {
       const token = localStorage.getItem("access_token");
@@ -121,22 +134,49 @@ export default {
           }
         );
 
-        const { task_id, message } = res.data;
-        console.log("Export Task Started:", task_id);
-        alert(
-          "✅ Export started! You can check the CSV file shortly in the backend static folder."
-        );
-      } catch (error) {
-        console.error("Export failed:", error);
+        const { task_id } = res.data;
+        checkStatus(task_id); // start polling
+      } catch (err) {
+        console.error("Export failed:", err);
         alert("❌ Export failed.");
-      } finally {
         exporting.value = false;
       }
+    };
+
+    const checkStatus = async (taskId) => {
+      const token = localStorage.getItem("access_token");
+
+      const interval = setInterval(async () => {
+        try {
+          const res = await axios.get(
+            `http://localhost:5000/user/export-status/${taskId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (res.data.status === "ready") {
+            clearInterval(interval);
+            alert("✅ Export complete! Downloading now...");
+            window.open(res.data.download_url, "_blank"); // open CSV file
+            exporting.value = false;
+          }
+        } catch (err) {
+          console.error("Error checking export status:", err);
+          clearInterval(interval);
+          exporting.value = false;
+          alert("❌ Error while checking task status.");
+        }
+      }, 3000); // poll every 3 seconds
     };
 
     return {
       history,
       exporting,
+      downloadUrl,
+      exportError,
       exportQuizHistory,
     };
   },

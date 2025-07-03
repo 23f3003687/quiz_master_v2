@@ -452,3 +452,20 @@ def export_quiz_history():
     user_id = get_jwt_identity()
     task = export_user_quiz_history.delay(user_id)
     return jsonify({"message": "Export started", "task_id": task.id}), 202
+
+
+@user_bp.route("/export-status/<task_id>", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def get_export_status(task_id):
+    from celery.result import AsyncResult
+    task = AsyncResult(task_id)
+    
+    if task.state == "SUCCESS":
+        file_path = task.result  # e.g. static/exports/abc.csv
+        download_url = f"http://localhost:5000/{file_path}"  # Serve via Flask static
+        return jsonify({"status": "ready", "download_url": download_url}), 200
+    elif task.state == "PENDING":
+        return jsonify({"status": "pending"}), 202
+    else:
+        return jsonify({"status": "failed"}), 500

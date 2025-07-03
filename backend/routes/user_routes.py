@@ -376,55 +376,45 @@ def summary_report():
         "scores": detailed_scores
     }), 200
 
-@user_bp.route('/search', methods=['GET', 'OPTIONS'])
+@user_bp.route("/search", methods=["GET"])
 @cross_origin()
+@jwt_required()
 def user_search():
-    if request.method == 'OPTIONS':
-        return '', 200  # Let preflight pass
-    from flask_jwt_extended import verify_jwt_in_request
-    verify_jwt_in_request()  # Only verify for GET requests
-
-    search_type = request.args.get("type", "").lower()
     query = request.args.get("query", "").strip().lower()
-
-    if not search_type or not query:
-        return jsonify({"error": "Missing search parameters"}), 400
+    if not query:
+        return jsonify({"error": "Missing query parameter"}), 400
 
     results = []
 
-    if search_type in ["subject", "subjects"]:
-        subjects = Subject.query.filter(
-            (Subject.name.ilike(f"%{query}%")) |
-            (Subject.description.ilike(f"%{query}%"))
-        ).all()
+    # Subjects
+    subjects = Subject.query.filter(
+        (Subject.name.ilike(f"%{query}%")) |
+        (Subject.description.ilike(f"%{query}%"))
+    ).all()
+    for s in subjects:
+        results.append({
+            "type": "subject",
+            "subject_id": s.subject_id,
+            "name": s.name,
+            "description": s.description
+        })
 
-        results = [
-            {
-                "subject_id": s.subject_id,
-                "name": s.name,
-                "description": s.description
-            } for s in subjects
-        ]
-
-    elif search_type in ["quiz", "quizzes"]:
-        quizzes = Quiz.query.join(Chapter).join(Subject).filter(
-            (Quiz.name.ilike(f"%{query}%")) |
-            (Chapter.name.ilike(f"%{query}%")) |
-            (Subject.name.ilike(f"%{query}%"))
-        ).all()
-
-        results = [
-            {
-                "quiz_id": q.quiz_id,
-                "quiz_name": q.name,
-                "chapter_name": q.chapter.name,
-                "subject_name": q.chapter.subject.name,
-                "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
-                "total_marks": q.total_marks
-            } for q in quizzes
-        ]
-
-    else:
-        return jsonify({"error": "Invalid search type"}), 400
+    # Quizzes
+    quizzes = Quiz.query.join(Chapter).join(Subject).filter(
+        (Quiz.name.ilike(f"%{query}%")) |
+        (Chapter.name.ilike(f"%{query}%")) |
+        (Subject.name.ilike(f"%{query}%"))
+    ).all()
+    for q in quizzes:
+        results.append({
+            "type": "quiz",
+            "quiz_id": q.quiz_id,
+            "name": q.name,
+            "chapter_name": q.chapter.name,
+            "subject_id": q.chapter.subject.subject_id,
+            "subject_name": q.chapter.subject.name,
+            "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
+            "total_marks": q.total_marks
+        })
 
     return jsonify(results), 200

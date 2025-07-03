@@ -77,7 +77,9 @@ export default {
       try {
         const token = localStorage.getItem("access_token");
         const response = await axios.get(
-          `http://localhost:5000/user/search?query=${encodeURIComponent(query)}`,
+          `http://localhost:5000/user/search?query=${encodeURIComponent(
+            query
+          )}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -86,11 +88,7 @@ export default {
         );
 
         if (Array.isArray(response.data)) {
-          this.results = response.data.map((item) => {
-            if (item.subject_id) return { ...item, type: "subject" };
-            if (item.quiz_id) return { ...item, type: "quiz" };
-            return { ...item, type: "unknown" };
-          });
+          this.results = response.data;
         } else {
           this.results = [];
         }

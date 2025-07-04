@@ -538,7 +538,7 @@ def admin_search():
 
     return jsonify(results), 200
 
-@admin_bp.route("/summary", methods=["GET"])
+@admin_bp.route("/summary-report", methods=["GET"])
 @jwt_required()
 def admin_summary():
     total_users = User.query.filter_by(is_admin=False).count()
@@ -546,28 +546,49 @@ def admin_summary():
     total_subjects = Subject.query.count()
     total_attempts = Score.query.count()
 
+    # Compose summary object
+    summary = {
+        "total_users": total_users,
+        "total_quizzes": total_quizzes,
+        "total_subjects": total_subjects,
+        "total_attempts": total_attempts
+    }
+
+    # Prepare pseudo-score list to be reused in pie/line/bar charts in Vue
+    scores = []
+
     # Pie chart: Quiz attempts by subject
     attempts_by_subject = (
         db.session.query(Subject.name, func.count(Score.score_id))
         .join(Subject.chapters)
-        .join(Quiz, Quiz.chapter_id == Subject.chapters[0].chapter_id)
+        .join(Quiz, Quiz.chapter_id == Chapter.chapter_id)
         .join(Score, Score.quiz_id == Quiz.quiz_id)
         .group_by(Subject.name)
         .all()
     )
-    subject_attempts_data = [{"subject": name, "attempts": count} for name, count in attempts_by_subject]
+    for subject, attempts in attempts_by_subject:
+        scores.append({
+            "type": "subject_attempts",
+            "label": subject,
+            "value": attempts
+        })
 
     # Bar chart: Quizzes per subject
     quizzes_by_subject = (
         db.session.query(Subject.name, func.count(Quiz.quiz_id))
         .join(Subject.chapters)
-        .join(Quiz, Quiz.chapter_id == Subject.chapters[0].chapter_id)
+        .join(Quiz, Quiz.chapter_id == Chapter.chapter_id)
         .group_by(Subject.name)
         .all()
     )
-    subject_quizzes_data = [{"subject": name, "quizzes": count} for name, count in quizzes_by_subject]
+    for subject, count in quizzes_by_subject:
+        scores.append({
+            "type": "subject_quizzes",
+            "label": subject,
+            "value": count
+        })
 
-    # Line chart: Quiz attempts over last 7 days
+    # Line chart: Attempts per day (last 7 days)
     last_7_days = datetime.utcnow() - timedelta(days=6)
     daily_attempts = (
         db.session.query(func.date(Score.time_stamp_of_attempt), func.count(Score.score_id))
@@ -576,16 +597,14 @@ def admin_summary():
         .order_by(func.date(Score.time_stamp_of_attempt))
         .all()
     )
-    date_attempts_data = [
-        {"date": date.strftime("%Y-%m-%d"), "attempts": count} for date, count in daily_attempts
-    ]
+    for date, count in daily_attempts:
+        scores.append({
+            "type": "daily_attempts",
+            "label": date.strftime("%Y-%m-%d"),
+            "value": count
+        })
 
     return jsonify({
-        "total_users": total_users,
-        "total_quizzes": total_quizzes,
-        "total_subjects": total_subjects,
-        "total_attempts": total_attempts,
-        "subject_attempts": subject_attempts_data,
-        "subject_quizzes": subject_quizzes_data,
-        "daily_attempts": date_attempts_data
+        "summary": summary,
+        "scores": scores
     }), 200

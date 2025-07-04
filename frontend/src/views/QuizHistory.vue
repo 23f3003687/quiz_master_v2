@@ -9,10 +9,9 @@
       <UserNavbar class="bg-white shadow-sm" />
 
       <div class="container mt-4">
-        <h3 class="mb-4">📘 Quiz History</h3>
-
-        <!-- Export Button -->
-        <div class="mb-3">
+        <!-- Heading + Export Button on the same line -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="mb-0">📘 Quiz History</h3>
           <button
             class="btn btn-outline-success"
             @click="exportQuizHistory"
@@ -21,19 +20,21 @@
             <span v-if="exporting">📤 Exporting...</span>
             <span v-else>📥 Export Quiz History</span>
           </button>
-
-          <div v-if="downloadUrl" class="mt-2 alert alert-success">
-            ✅ Export ready.
-            <a :href="downloadUrl" download target="_blank"
-              >Click to Download CSV</a
-            >
-          </div>
-
-          <div v-if="exportError" class="mt-2 alert alert-danger">
-            ❌ {{ exportError }}
-          </div>
         </div>
 
+        <!-- Download link or error alert -->
+        <div v-if="downloadUrl" class="alert alert-success">
+          ✅ Export ready.
+          <a :href="downloadUrl" download target="_blank"
+            >Click to Download CSV</a
+          >
+        </div>
+
+        <div v-if="exportError" class="alert alert-danger">
+          ❌ {{ exportError }}
+        </div>
+
+        <!-- Quiz History Table -->
         <div v-if="history.length === 0" class="alert alert-info">
           No quiz attempts found.
         </div>

@@ -4,8 +4,12 @@ from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db ,User, Score, Subject, Chapter, Quiz, Question, UserAnswer
 from datetime import datetime, timedelta
+from celery.result import AsyncResult
+from celery_utils import celery  
+
 import pytz
 user_bp = Blueprint('user', __name__)
+
 
 # backend/routes/user_routes.py
 
@@ -458,15 +462,11 @@ def export_quiz_history():
 @cross_origin()
 @jwt_required()
 def get_export_status(task_id):
-    from celery.result import AsyncResult
-    import os
-
-    task = AsyncResult(task_id)
+    task = AsyncResult(task_id, app=celery)
 
     if task.state == "SUCCESS":
         file_path = task.result
-        # ✅ Normalize to use forward slashes for URL
-        normalized_path = file_path.replace("\\", "/")  
+        normalized_path = file_path.replace("\\", "/")  # for Windows
         download_url = f"http://localhost:5000/{normalized_path}"
         return jsonify({"status": "ready", "download_url": download_url}), 200
 

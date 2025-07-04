@@ -2,7 +2,7 @@ import csv
 import os
 import uuid
 from models import Score, Quiz, Subject
-from celery_worker import celery  # ✅ imported at the top
+from celery_utils import celery  # ✅ CORRECT
 
 def get_export_path():
     folder = os.path.join("static", "exports")
@@ -11,8 +11,8 @@ def get_export_path():
 
 def get_export_data(user_id):
     scores = Score.query.filter_by(user_id=user_id).all()
-
     export_data = []
+
     for score in scores:
         quiz = Quiz.query.get(score.quiz_id)
         subject = quiz.chapter.subject
@@ -33,17 +33,11 @@ def write_csv(filepath, data):
         writer.writeheader()
         writer.writerows(data)
 
-def create_app_with_context():
-    from app import create_app
-    return create_app()
-
 @celery.task
 def export_user_quiz_history(user_id):
-    app = create_app_with_context()
-    with app.app_context():
-        export_data = get_export_data(user_id)
-        if not export_data:
-            return None
-        filepath = get_export_path()
-        write_csv(filepath, export_data)
-        return filepath
+    export_data = get_export_data(user_id)
+    if not export_data:
+        return None
+    filepath = get_export_path()
+    write_csv(filepath, export_data)
+    return filepath

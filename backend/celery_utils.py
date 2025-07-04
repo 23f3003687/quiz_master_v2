@@ -4,21 +4,23 @@ import os
 
 load_dotenv()
 
-# ✅ Define celery instance globally
-celery = Celery(
-    __name__,
-    broker=os.getenv("broker_url"),
-    backend=os.getenv("result_backend")
-)
+celery = Celery(__name__)
 
-# ✅ Properly bind Celery with Flask context
 def make_celery(app):
-    celery.conf.update(app.config)
+    celery.conf.update(
+        broker_url=app.config.get("broker_url"),
+        result_backend=app.config.get("result_backend"),
+        task_serializer='json',
+        result_serializer='json',
+        accept_content=['json'],
+        timezone='Asia/Kolkata',
+        enable_utc=True
+    )
 
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
             with app.app_context():
-                return super().__call__(*args, **kwargs)  # ✅ FIXED
+                return self.run(*args, **kwargs)
 
     celery.Task = ContextTask
     return celery

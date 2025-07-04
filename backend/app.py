@@ -46,14 +46,14 @@ def create_admin_user():
 
 def create_app():
     app = Flask(__name__, template_folder='templates',static_folder='static')
-    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
-
-    # Configurations
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_master.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'supersecretkey')
-    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+    
     app.config.from_object(Config)
+    
+    # Add lowercase keys for Celery (required!)
+    app.config["broker_url"] = app.config.get("BROKER_URL")
+    app.config["result_backend"] = app.config.get("RESULT_BACKEND")
+
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
     # Initialize extensions
     db.init_app(app)

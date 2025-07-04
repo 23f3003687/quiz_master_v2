@@ -9,8 +9,8 @@ def main():
     make_celery(app)
 
     # ✅ Debug to verify environment values
-    print("📦 Broker URL:", app.config.get("broker_url"))
-    print("📦 Result Backend:", app.config.get("result_backend"))
+    print("📦 Broker URL:", app.config.get("BROKER_URL"))
+    print("📦 Result Backend:", app.config.get("RESULT_BACKEND"))
 
     # ✅ Import tasks after config is done
     from tasks.daily_reminder import send_daily_quiz_reminders

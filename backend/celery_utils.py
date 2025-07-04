@@ -4,12 +4,12 @@ import os
 
 load_dotenv()
 
-celery = Celery(__name__)
+celery = Celery(__name__, broker=os.environ.get("BROKER_URL"), backend=os.environ.get("RESULT_BACKEND"))
 
 def make_celery(app):
     celery.conf.update(
-        broker_url=app.config.get("broker_url"),
-        result_backend=app.config.get("result_backend"),
+        broker_url=app.config.get("BROKER_URL"),
+        result_backend=app.config.get("RESULT_BACKEND"),
         task_serializer='json',
         result_serializer='json',
         accept_content=['json'],

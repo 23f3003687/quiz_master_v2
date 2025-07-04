@@ -84,6 +84,11 @@ const routes = [
     component: () => import("@/views/QuizSummary.vue"),
   },
   {
+    path: "/admin/summary",
+    name: "AdminSummary",
+    component: () => import("@/views/AdminSummary.vue"),
+  },
+  {
     path: "/admin/search",
     name: "AdminSearch",
     component: () => import("@/views/AdminSearch.vue"),

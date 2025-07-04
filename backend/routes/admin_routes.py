@@ -1,10 +1,10 @@
 # routes/admin_routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from models import db , Subject, Chapter, User, Quiz, Question
-from datetime import datetime
+from models import db , Subject, Chapter, User, Quiz, Question, Score
+from datetime import datetime, timedelta
 from tasks.daily_reminder import send_daily_quiz_reminders
-
+from sqlalchemy import func
 
 admin_bp = Blueprint('admin', __name__)
 @admin_bp.route('/trigger-daily-reminders', methods=['GET'])
@@ -537,3 +537,55 @@ def admin_search():
             })
 
     return jsonify(results), 200
+
+@admin_bp.route("/summary", methods=["GET"])
+@jwt_required()
+def admin_summary():
+    total_users = User.query.filter_by(is_admin=False).count()
+    total_quizzes = Quiz.query.count()
+    total_subjects = Subject.query.count()
+    total_attempts = Score.query.count()
+
+    # Pie chart: Quiz attempts by subject
+    attempts_by_subject = (
+        db.session.query(Subject.name, func.count(Score.score_id))
+        .join(Subject.chapters)
+        .join(Quiz, Quiz.chapter_id == Subject.chapters[0].chapter_id)
+        .join(Score, Score.quiz_id == Quiz.quiz_id)
+        .group_by(Subject.name)
+        .all()
+    )
+    subject_attempts_data = [{"subject": name, "attempts": count} for name, count in attempts_by_subject]
+
+    # Bar chart: Quizzes per subject
+    quizzes_by_subject = (
+        db.session.query(Subject.name, func.count(Quiz.quiz_id))
+        .join(Subject.chapters)
+        .join(Quiz, Quiz.chapter_id == Subject.chapters[0].chapter_id)
+        .group_by(Subject.name)
+        .all()
+    )
+    subject_quizzes_data = [{"subject": name, "quizzes": count} for name, count in quizzes_by_subject]
+
+    # Line chart: Quiz attempts over last 7 days
+    last_7_days = datetime.utcnow() - timedelta(days=6)
+    daily_attempts = (
+        db.session.query(func.date(Score.time_stamp_of_attempt), func.count(Score.score_id))
+        .filter(Score.time_stamp_of_attempt >= last_7_days)
+        .group_by(func.date(Score.time_stamp_of_attempt))
+        .order_by(func.date(Score.time_stamp_of_attempt))
+        .all()
+    )
+    date_attempts_data = [
+        {"date": date.strftime("%Y-%m-%d"), "attempts": count} for date, count in daily_attempts
+    ]
+
+    return jsonify({
+        "total_users": total_users,
+        "total_quizzes": total_quizzes,
+        "total_subjects": total_subjects,
+        "total_attempts": total_attempts,
+        "subject_attempts": subject_attempts_data,
+        "subject_quizzes": subject_quizzes_data,
+        "daily_attempts": date_attempts_data
+    }), 200

@@ -160,7 +160,14 @@ export default {
           if (res.data.status === "ready") {
             clearInterval(interval);
             alert("✅ Export complete! Downloading now...");
-            window.open(res.data.download_url, "_blank"); // open CSV file
+            // ✅ Trigger browser download
+            const link = document.createElement("a");
+            link.href = res.data.download_url;
+            link.download = ""; // Let browser use filename from server
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
             exporting.value = false;
           }
         } catch (err) {

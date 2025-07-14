@@ -65,3 +65,4 @@ Start Celery beat (celery -A celery_worker.celery beat --loglevel=info)
 
 But you do NOT need to run flask shell and .delay() manually—those were just for testing.
 
+For Milestone 10, Redis was configured with Flask-Caching to optimize expensive GET endpoints. We used @cache.cached decorators with appropriate TTLs and custom key logic where necessary (e.g., per-user dashboards). This approach enhanced performance and mitigated unnecessary DB load.”

@@ -11,8 +11,8 @@ import os
 from flask_cors import CORS
 from config import Config
 from flask_migrate import Migrate
-from celery_utils import make_celery  # ✅ Already done, most likely
-
+from celery_utils import make_celery  
+from extensions import cache
 
 load_dotenv()
 
@@ -48,10 +48,14 @@ def create_app():
     app = Flask(__name__, template_folder='templates',static_folder='static')
     
     app.config.from_object(Config)
-    
-    # Add lowercase keys for Celery (required!)
     app.config["broker_url"] = app.config.get("BROKER_URL")
     app.config["result_backend"] = app.config.get("RESULT_BACKEND")
+    cache_config = {
+        'CACHE_TYPE': 'RedisCache',
+        'CACHE_REDIS_URL': 'redis://localhost:6379/0'
+    }
+    cache.init_app(app, config=cache_config)
+  
 
     CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
@@ -61,6 +65,7 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     migrate.init_app(app, db)
+    
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')

@@ -1,4 +1,4 @@
-# routes/user_routes.py
+from extensions import cache
 from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -9,9 +9,6 @@ from celery_utils import celery
 
 import pytz
 user_bp = Blueprint('user', __name__)
-
-
-# backend/routes/user_routes.py
 
 def calculate_performance(user_id):
     from models import Score
@@ -33,13 +30,34 @@ def generate_remarks(total_score, total_marks):
         return "Good effort. Review and try again!"
     else:
         return "Needs improvement. Don’t give up!"
+    
+def make_cache_key_user_dashboard():
+    user_id = get_jwt_identity()
+    return f"user_dashboard_{user_id}"
 
+def make_cache_key_subject_quizzes():
+    subject_id = request.view_args['subject_id']
+    return f"user_quizzes_subject_{subject_id}"
 
+def make_cache_key_scorecard():
+    score_id = request.view_args['score_id']
+    return f"user_scorecard_{score_id}"
 
+def make_cache_key_score_history():
+    return f"user_score_history:{get_jwt_identity()}"
+
+def make_cache_key_user_summary():
+    return f"user_summary_report:{get_jwt_identity()}"
+
+def make_cache_key_user_search():
+    user_id = get_jwt_identity()
+    query = request.args.get("query", "").strip().lower()
+    return f"user_search:{user_id}:{query}"
 
 
 @user_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=300, key_prefix=make_cache_key_user_dashboard)
 def get_user_dashboard():
     user_id = get_jwt_identity()
     user = User.query.filter_by(user_id=user_id).first()
@@ -83,6 +101,7 @@ def get_user_dashboard():
     
 @user_bp.route('/subjects', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=300)
 def get_all_subjects():
     subjects = Subject.query.all()
     subject_list = [
@@ -97,6 +116,7 @@ def get_all_subjects():
 
 @user_bp.route('/subject/<int:subject_id>/quizzes', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=300, key_prefix=make_cache_key_subject_quizzes)
 def get_quizzes_by_subject(subject_id):
     try:
         # Find all chapters under the subject
@@ -185,8 +205,6 @@ def get_quiz_attempt(quiz_id):
         "questions": questions_data
     })
 
-
-    
 @user_bp.route('/submit-quiz/<int:quiz_id>', methods=['POST', 'OPTIONS'])
 @cross_origin()
 @jwt_required()
@@ -279,10 +297,9 @@ def submit_quiz(quiz_id):
         "score_id": score.score_id
     }), 200
 
-
-
 @user_bp.route('/score/<int:score_id>', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=600, key_prefix=make_cache_key_scorecard)
 def get_scorecard(score_id):
     score = Score.query.get_or_404(score_id)
     quiz = Quiz.query.get(score.quiz_id)
@@ -319,6 +336,7 @@ def get_scorecard(score_id):
     
 @user_bp.route('/score/history', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=600, key_prefix=make_cache_key_score_history)
 def get_score_history():
     user_id = get_jwt_identity()
     scores = Score.query.filter_by(user_id=user_id).order_by(Score.time_stamp_of_attempt.desc()).all()
@@ -335,9 +353,9 @@ def get_score_history():
         })
     return jsonify(history), 200
 
-
 @user_bp.route('/summary-report', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=600, key_prefix=make_cache_key_user_summary)
 def summary_report():
     user_id = get_jwt_identity()
     scores = Score.query.filter_by(user_id=user_id).all()
@@ -383,6 +401,7 @@ def summary_report():
 @user_bp.route("/search", methods=["GET"])
 @cross_origin()
 @jwt_required()
+@cache.cached(timeout=600, key_prefix=make_cache_key_user_search)
 def user_search():
     query = request.args.get("query", "").strip().lower()
     if not query:

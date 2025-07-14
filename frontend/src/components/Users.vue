@@ -10,11 +10,13 @@
 
       <!-- Page content -->
       <div class="container mt-5 pt-3">
-        <h2 class="mt-3 mb-3" >Registered Users</h2>
-        
-        <div class="table-responsive">
+        <h2 class="mt-3 mb-3">Registered Users</h2>
+
+        <div
+          class="table-responsive text-white"
+        >
           <table class="table table-hover align-middle shadow-sm rounded">
-            <thead class="table-dark">
+            <thead class="custom-thead">
               <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Full Name</th>
@@ -35,17 +37,17 @@
                 <td>{{ index + 1 }}</td>
                 <td class="fw-semibold">{{ user.full_name }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.qualification || '—' }}</td>
+                <td>{{ user.qualification || "—" }}</td>
                 <td>{{ formatDate(user.dob) }}</td>
                 <td>
                   <span
                     class="badge"
                     :class="user.is_admin ? 'bg-primary' : 'bg-secondary'"
                   >
-                    {{ user.is_admin ? 'Admin' : 'User' }}
+                    {{ user.is_admin ? "Admin" : "User" }}
                   </span>
                 </td>
-                <td>{{ formatDateTime(user.last_login) || '—' }}</td>
+                <td>{{ formatDateTime(user.last_login) || "—" }}</td>
                 <td>{{ formatDateTime(user.registered_on) }}</td>
               </tr>
             </tbody>
@@ -56,10 +58,11 @@
           {{ errorMessage }}
         </div>
       </div>
-    </div> <!-- End of main content -->
-  </div> <!-- End of main container -->
+    </div>
+    <!-- End of main content -->
+  </div>
+  <!-- End of main container -->
 </template>
-
 
 <script>
 import axios from "axios";
@@ -70,7 +73,7 @@ export default {
   name: "Users",
   components: {
     Sidebar,
-    Navbar, 
+    Navbar,
   },
   data() {
     return {
@@ -128,6 +131,13 @@ export default {
   background-color: #fff;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 12px rgba(192, 177, 177, 0.05);
+}
+
+/* ✅ Add this */
+.custom-thead,
+.custom-thead th {
+  background-color: #032d45 !important;
+  color: white !important;
 }
 </style>

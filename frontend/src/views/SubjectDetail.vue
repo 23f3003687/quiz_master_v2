@@ -87,7 +87,16 @@
 
         <!-- Chapter List Table -->
         <div class="card shadow-sm">
-          <div class="card-header bg-dark text-white fw-semibold">Chapters</div>
+          <div
+            class="card shadow-sm p-3 text-white "
+            style="
+              max-width: 1200px;
+              background-color: #032d45;
+              border: none;
+            "
+          >
+            Chapters
+          </div>
           <div class="card-body p-0">
             <table class="table table-hover m-0">
               <thead class="table-light">

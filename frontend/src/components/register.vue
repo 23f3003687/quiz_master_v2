@@ -1,6 +1,21 @@
 <template>
-  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-sm p-4 w-100" style="max-width: 450px;">
+  <div
+    class="d-flex justify-content-center align-items-center vh-100"
+    :style="{
+      backgroundImage: `url(${loginBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    }"
+  >
+    <div
+      class="card shadow-sm p-4 w-100"
+      style="
+        max-width: 400px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: none;
+      "
+    >
       <h3 class="text-center mb-4">Create an Account</h3>
       <form @submit.prevent="register">
         <div class="mb-3">
@@ -72,6 +87,7 @@
 import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import loginBg from "@/assets/t.jpg";
 
 export default {
   name: "Register",
@@ -107,6 +123,7 @@ export default {
       qualification,
       errorMessage,
       register,
+      loginBg,
     };
   },
 };

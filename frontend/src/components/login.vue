@@ -1,13 +1,33 @@
 <template>
-  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-sm p-4 w-100 " style="max-width: 400px">
+  <div
+    class="d-flex justify-content-center align-items-center vh-100"
+    :style="{
+      backgroundImage: `url(${loginBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    }"
+  >
+    <div
+      class="card shadow-sm p-4 w-100"
+      style="
+        max-width: 400px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: none;
+      "
+    >
       <!-- Logo and app name -->
       <div class="text-center mb-3">
-        <img :src="logo" alt="QuizMaster Logo" style="height: 100px;" class="mb-2" />
+        <img
+          :src="logo"
+          alt="QuizMaster Logo"
+          style="height: 100px"
+          class="mb-2"
+        />
+        <h4 class="text-center mb-4">Login to Your Account!</h4>
       </div>
 
       <!-- Login Form -->
-      <h4 class="text-center mb-4">Login to Your Account</h4>
       <form @submit.prevent="login">
         <div class="mb-3">
           <label for="email" class="form-label">Email address</label>
@@ -50,7 +70,8 @@
 import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import logo from "@/assets/logo.png"; // Import your logo
+import logo from "@/assets/logo.png";
+import loginBg from "@/assets/u.jpg";
 
 export default {
   name: "Login",
@@ -90,7 +111,8 @@ export default {
       password,
       errorMessage,
       login,
-      logo, // Make logo available in template
+      logo,
+      loginBg,
     };
   },
 };

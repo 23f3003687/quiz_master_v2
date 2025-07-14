@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-dark text-white p-3">
+  <div class="custom-sidebar text-white p-3">
     <h4 class="fw-bold mb-4 mt-1">Admin Panel</h4>
     <ul class="nav flex-column gap-2">
       <li class="nav-item">
@@ -53,14 +53,18 @@ export default {
 }
 
 .nav-link:hover {
-  background-color: #343a40;
+  background-color: #064c74ff;
   color: #ffffff;
   border-radius: 6px;
 }
 
 .router-link-exact-active {
-  background-color: #495057;
+  background-color: #064c74ff ;
   font-weight: 600;
   border-radius: 6px;
+}
+
+.custom-sidebar {
+ background-color: #032d45 !important;
 }
 </style>

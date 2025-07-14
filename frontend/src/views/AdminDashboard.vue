@@ -132,13 +132,13 @@ export default {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: rgb(60, 60, 61);
+  background-color: #032d45;
   color: white;
   padding: 12px 18px;
   border: none;
   border-radius: 50px;
   font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 4px 12px #032d45;
   cursor: pointer;
 }
 
@@ -149,7 +149,7 @@ export default {
   background-color: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(22, 21, 21, 0.95);
+  box-shadow: 0 4px 12px #032d45;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -204,6 +204,7 @@ export default {
 }
 
 .modal-actions {
+   
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -215,7 +216,7 @@ export default {
   font-size: 0.9rem;
   border-radius: 6px;
   border: none;
-  background-color: #333;
+  background-color: #032d45;
   color: white;
   cursor: pointer;
 }

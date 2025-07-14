@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-dark text-white vh-100 p-3 position-fixed"
+    class="custom-sidebar text-white vh-100 p-3 position-fixed"
     style="width: 175px"
   >
     <h5 class="text-center mb-4">User Menu</h5>
@@ -49,10 +49,23 @@ export default {
 
 <style scoped>
 .nav-link {
-  transition: background-color 0.2s;
+  padding: 12px 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
+  background-color: #064c74ff;
+  color: #ffffff;
+  border-radius: 6px;
+}
+
+.router-link-exact-active {
+  background-color: #064c74ff ;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.custom-sidebar {
+ background-color: #032d45 !important;
 }
 </style>

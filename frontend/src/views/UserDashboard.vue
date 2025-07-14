@@ -9,10 +9,11 @@
       style="margin-left: 175px; max-height: 100vh; overflow-y: auto"
     >
       <!-- Navbar at the top -->
-      <UserNavbar class="bg-white shadow-sm" />
+      <UserNavbar class="bg-white shadow-sm mb-3" />
 
       <!-- Main Dashboard Content -->
-      <div class="container mt-4 pb-5">
+      <div class="container" style="padding-top: 80px; padding-bottom: 40px;">
+
         <!-- User Greeting -->
         <div class="mb-4">
           <h4>Hello, {{ user.full_name }}</h4>

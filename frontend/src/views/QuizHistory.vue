@@ -8,7 +8,7 @@
       <!-- Navbar -->
       <UserNavbar class="bg-white shadow-sm" />
 
-      <div class="container mt-4">
+      <div class="container" style="padding-top: 80px; padding-bottom: 40px">
         <!-- Heading + Export Button on the same line -->
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h3 class="mb-0">📘 Quiz History</h3>

@@ -9,7 +9,7 @@
       <UserNavbar class="bg-white shadow-sm" />
 
       <!-- Page content -->
-      <div class="container mt-4">
+      <div class="container" style="padding-top: 80px; padding-bottom: 40px">
         <h3 class="mb-4">📊 Quiz Summary Report</h3>
 
         <!-- Summary Cards -->

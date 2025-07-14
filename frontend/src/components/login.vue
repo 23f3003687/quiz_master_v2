@@ -1,7 +1,13 @@
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-sm p-4 w-100" style="max-width: 400px">
-      <h3 class="text-center mb-4">Login to Your Account</h3>
+    <div class="card shadow-sm p-4 w-100 " style="max-width: 400px">
+      <!-- Logo and app name -->
+      <div class="text-center mb-3">
+        <img :src="logo" alt="QuizMaster Logo" style="height: 100px;" class="mb-2" />
+      </div>
+
+      <!-- Login Form -->
+      <h4 class="text-center mb-4">Login to Your Account</h4>
       <form @submit.prevent="login">
         <div class="mb-3">
           <label for="email" class="form-label">Email address</label>
@@ -25,6 +31,8 @@
         </div>
         <button type="submit" class="btn btn-success w-100">Login</button>
       </form>
+
+      <!-- Error and Link -->
       <p v-if="errorMessage" class="text-danger text-center mt-3">
         {{ errorMessage }}
       </p>
@@ -42,6 +50,7 @@
 import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import logo from "@/assets/logo.png"; // Import your logo
 
 export default {
   name: "Login",
@@ -81,6 +90,7 @@ export default {
       password,
       errorMessage,
       login,
+      logo, // Make logo available in template
     };
   },
 };

@@ -9,8 +9,9 @@
       <UserNavbar class="bg-white shadow-sm" />
 
       <!-- Page Content -->
-      <div class="container mt-4">
-        <h4>Subjects</h4>
+      <div class="container" style="padding-top: 80px; padding-bottom: 40px">
+        
+        <h2>Subjects</h2>
         <div class="row">
           <div
             class="col-md-3 mb-3"
@@ -35,12 +36,12 @@
 </template>
 
 <script>
-import axios from 'axios'
-import UserSidebar from '@/components/UserSidebar.vue'
-import UserNavbar from '@/components/UserNavbar.vue'
+import axios from "axios";
+import UserSidebar from "@/components/UserSidebar.vue";
+import UserNavbar from "@/components/UserNavbar.vue";
 
 export default {
-  name: 'UserSubjects',
+  name: "UserSubjects",
   components: {
     UserSidebar,
     UserNavbar,
@@ -48,31 +49,31 @@ export default {
   data() {
     return {
       subjects: [],
-    }
+    };
   },
   mounted() {
-    this.fetchSubjects()
+    this.fetchSubjects();
   },
   methods: {
     fetchSubjects() {
       axios
-        .get('http://localhost:5000/user/subjects', {
+        .get("http://localhost:5000/user/subjects", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
         })
         .then((response) => {
-          this.subjects = response.data.subjects
+          this.subjects = response.data.subjects;
         })
         .catch((error) => {
-          console.error('Error fetching subjects:', error)
-        })
+          console.error("Error fetching subjects:", error);
+        });
     },
     goToSubject(subjectId) {
-       this.$router.push({ name: 'UserSubjectDetail', params: { subjectId } })
+      this.$router.push({ name: "UserSubjectDetail", params: { subjectId } });
     },
   },
-}
+};
 </script>
 
 <style scoped>

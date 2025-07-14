@@ -7,7 +7,7 @@
       class="container-fluid d-flex justify-content-between align-items-center"
     >
       <!-- Logo -->
-      <span class="navbar-brand fw-bold">Quiz Master</span>
+      <img :src="logo" alt="Quiz Master" style="height: 100px" />
 
       <!-- Search Bar -->
       <div
@@ -30,11 +30,15 @@
 </template>
 
 <script>
+
+import logo from "@/assets/logo.png";
+
 export default {
   name: "AdminNavbar",
   data() {
     return {
       query: "",
+      logo,  
     };
   },
   methods: {

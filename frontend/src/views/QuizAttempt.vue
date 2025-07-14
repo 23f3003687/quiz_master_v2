@@ -8,15 +8,15 @@
       <!-- Navbar -->
       <UserNavbar class="bg-white shadow-sm" />
 
-      <!-- Quiz Content -->
-      <div v-if="!hasError" class="container mt-4 position-relative">
-        <!-- Timer -->
-        <div class="position-absolute top-0 end-0 mt-2 me-3">
-          <span class="badge bg-danger fs-6 px-3 py-2">
-            ⏰ {{ formattedTime }}
-          </span>
-        </div>
+      <!-- Timer -->
+      <div class="position-fixed end-0 me-4" style="top: 70px;z-index: 1050">
+        <span class="badge bg-danger fs-6 px-3 py-2">
+          ⏰ {{ formattedTime }}
+        </span>
+      </div>
 
+      <!-- Quiz Content -->
+      <div v-if="!hasError" class="container mt-5 pt-3">
         <!-- Quiz Title -->
         <h4 class="mb-4">Quiz: {{ quiz.name }}</h4>
 

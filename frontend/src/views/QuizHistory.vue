@@ -40,7 +40,7 @@
         </div>
 
         <table v-else class="table table-striped shadow-sm">
-          <thead class="table-dark">
+          <thead class="custom-thead">
             <tr>
               <th>Sr.no.</th>
               <th>Quiz Name</th>
@@ -195,5 +195,11 @@ export default {
 .table th,
 .table td {
   vertical-align: middle;
+}
+
+.custom-thead,
+.custom-thead th {
+  background-color: #032d45 !important;
+  color: white !important;
 }
 </style>

@@ -54,8 +54,8 @@
         <div>
           <h5>Recent Activity</h5>
           <div class="table-responsive">
-            <table class="table table-striped table-bordered">
-              <thead class="thead-dark">
+            <table class="table table-hover align-middle table-bordered">
+              <thead class="custom-thead">
                 <tr>
                   <th>Quiz Name</th>
                   <th>Score</th>
@@ -158,5 +158,10 @@ export default {
 }
 .card:hover {
   transform: scale(1.02);
+}
+.custom-thead,
+.custom-thead th {
+  background-color: #032d45 !important;
+  color: white !important;
 }
 </style>

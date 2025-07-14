@@ -20,7 +20,6 @@ def trigger_reminders():
 
 @admin_bp.route('/subjects', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300)  # Cache for 5 minutes
 def get_subjects(): #show all the subjects on dashboard
     claims = get_jwt()
     if not claims or not claims.get("is_admin", False):
@@ -70,7 +69,7 @@ def create_subject():
     
 @admin_bp.route('/subject/<int:subject_id>', methods=['GET']) #show subject details
 @jwt_required()
-@cache.cached(timeout=300, query_string=True)
+
 def get_subject_details(subject_id):
     claims = get_jwt()
     if not claims or not claims.get("is_admin", False):
@@ -215,7 +214,6 @@ def delete_chapter(chapter_id):
     
 @admin_bp.route('/chapters/<int:chapter_id>/quizzes', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300, query_string=True)
 def get_quizzes_by_chapter(chapter_id):
     quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
     quiz_list = []
@@ -338,11 +336,11 @@ def create_question(quiz_id):
 
     db.session.add(question)
     db.session.commit()
+     
 
     return jsonify({'message': 'Question created successfully'}), 201
 
 @admin_bp.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
-@cache.cached(timeout=300, query_string=True)
 def get_quiz_questions(quiz_id):
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
     questions_list = []
@@ -400,7 +398,6 @@ def delete_question(question_id):
     
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300)
 def get_all_users():
     users = User.query.all()
     user_list = [

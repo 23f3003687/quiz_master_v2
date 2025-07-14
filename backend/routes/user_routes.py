@@ -31,9 +31,6 @@ def generate_remarks(total_score, total_marks):
     else:
         return "Needs improvement. Don’t give up!"
     
-def make_cache_key_user_dashboard():
-    user_id = get_jwt_identity()
-    return f"user_dashboard_{user_id}"
 
 def make_cache_key_subject_quizzes():
     subject_id = request.view_args['subject_id']
@@ -57,7 +54,6 @@ def make_cache_key_user_search():
 
 @user_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
-@cache.cached(timeout=300, key_prefix=make_cache_key_user_dashboard)
 def get_user_dashboard():
     user_id = get_jwt_identity()
     user = User.query.filter_by(user_id=user_id).first()

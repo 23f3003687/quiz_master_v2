@@ -134,7 +134,7 @@ export default {
   box-shadow: 0 0 12px rgba(192, 177, 177, 0.05);
 }
 
-/* ✅ Add this */
+
 .custom-thead,
 .custom-thead th {
   background-color: #032d45 !important;

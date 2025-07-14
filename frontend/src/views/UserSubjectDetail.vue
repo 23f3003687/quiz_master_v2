@@ -6,10 +6,10 @@
     <!-- Main Content -->
     <div class="flex-grow-1 d-flex flex-column" style="margin-left: 175px">
       <!-- Navbar -->
-      <UserNavbar class="bg-white shadow-sm" />
+      <UserNavbar class="bg-white shadow-sm mb-3" />
 
       <!-- Page Content -->
-      <div class="container mt-4">
+      <div class="container pt-5 mt-4">
         <h3>Quizzes For {{ subject.name }}</h3>
         <p class="text-muted">{{ subject.description }}</p>
 

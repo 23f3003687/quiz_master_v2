@@ -62,7 +62,6 @@ class Quiz(db.Model):
     name = db.Column(db.String(120), nullable=False)
     start_datetime = db.Column(db.DateTime, nullable=False)
     time_duration = db.Column(db.Integer, nullable=False)  
-    total_marks = db.Column(db.Integer, nullable=False)
     remarks = db.Column(db.Text, nullable=True)
     tags = db.Column(db.String(255), nullable=True)
 
@@ -82,9 +81,10 @@ class Question(db.Model):
     option2 = db.Column(db.String(255), nullable=False)
     option3 = db.Column(db.String(255), nullable=False)
     option4 = db.Column(db.String(255), nullable=False)
-    correct_option = db.Column(db.String(10), nullable=False)  # e.g., "option2"
-    difficulty = db.Column(db.String(50), nullable=True)  # Optional
+    correct_option = db.Column(db.String(10), nullable=False)  
+    difficulty = db.Column(db.String(50), nullable=True) 
     explanation = db.Column(db.Text, nullable=True)
+    marks = db.Column(db.Integer, nullable=False, default=1)
 
     def __repr__(self):
         return f"<Question ID: {self.question_id} | Quiz: {self.quiz_id}>"

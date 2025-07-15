@@ -120,7 +120,7 @@ export default {
         );
 
         const data = res.data;
-        const total = data.correct_answers + data.wrong_answers;
+        const total = data.total_questions;
         const accuracy =
           total > 0
             ? ((data.correct_answers / total) * 100).toFixed(0) + "%"

@@ -48,17 +48,6 @@
                 />
               </div>
 
-              <div class="col-md-4">
-                <label class="form-label">Total Marks</label>
-                <input
-                  v-model.number="form.total_marks"
-                  type="number"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-
               <div class="col-md-6">
                 <label class="form-label">Remarks</label>
                 <input

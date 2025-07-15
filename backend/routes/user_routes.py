@@ -75,13 +75,15 @@ def get_user_dashboard():
     activity_log = []
     for score in completed_scores[:5]:
         quiz = Quiz.query.get(score.quiz_id)
-        total_questions = score.correct_answers + score.wrong_answers
+        questions = quiz.questions if quiz else []
+        total_questions = len(questions)
+        total_marks = sum(q.marks for q in questions)
         accuracy = round((score.correct_answers / total_questions) * 100, 2) if total_questions else 0
 
         activity_log.append({
             "id": score.score_id,
             "quiz_name": quiz.name if quiz else "Unknown Quiz",
-            "score": f"{score.total_score} / {quiz.total_marks if quiz else 'N/A'}",
+            "score": f"{score.total_score} / {total_marks if quiz else 'N/A'}",
             "accuracy": accuracy,
             "completion_date": score.time_stamp_of_attempt.strftime("%Y-%m-%d %H:%M:%S")
         })
@@ -122,13 +124,15 @@ def get_quizzes_by_subject(subject_id):
         for chapter in chapters:
             quizzes = Quiz.query.filter_by(chapter_id=chapter.chapter_id).all()
             for quiz in quizzes:
-                num_questions = Question.query.filter_by(quiz_id=quiz.quiz_id).count()
+                questions = Question.query.filter_by(quiz_id=quiz.quiz_id).all()
+                num_questions = len(questions)
+                total_marks = sum(q.marks for q in questions if q.marks is not None)
                 quiz_data = {
                     'quiz_id': quiz.quiz_id,
                     'name': quiz.name,
                     'time_duration': quiz.time_duration,
                     'start_datetime': quiz.start_datetime.isoformat() if quiz.start_datetime else None,
-                    'total_marks': quiz.total_marks,
+                    'total_marks': total_marks,
                     'num_questions': num_questions,
                     'remarks': quiz.remarks,
                     'tags': quiz.tags,
@@ -178,13 +182,14 @@ def get_quiz_attempt(quiz_id):
         return jsonify({"error": "Quiz has not started yet. Please check the Quiz Datetime again."}), 403
     elif now > end_time:
         return jsonify({"error": "Quiz has expired."}), 403
+    
+    total_marks = sum(q.marks for q in quiz.questions if q.marks is not None)
    
-
     quiz_data = {
         "quiz_id": quiz.quiz_id,
         "name": quiz.name,
         "time_duration": quiz.time_duration,
-        "total_marks": quiz.total_marks,
+        "total_marks": total_marks,
         "subject_id": quiz.chapter.subject.subject_id,
     }
 
@@ -195,6 +200,7 @@ def get_quiz_attempt(quiz_id):
         "option2": q.option2,
         "option3": q.option3,
         "option4": q.option4,
+        "marks": q.marks,
     } for q in quiz.questions]
 
     return jsonify({
@@ -256,7 +262,7 @@ def submit_quiz(quiz_id):
 
         if is_correct:
             correct_count += 1
-            total_score += 1
+            total_score += question.marks or 0 
         elif selected_value not in ["skipped", "invalid"]:
             wrong_count += 1
 
@@ -278,9 +284,7 @@ def submit_quiz(quiz_id):
             ))
 
     # Step 5: Finalize Score
-    quiz = Quiz.query.get(quiz_id)
-    total_marks = quiz.total_marks if quiz else len(all_questions)
-
+    total_marks = sum(q.marks or 0 for q in all_questions)
     score.total_score = total_score
     score.correct_answers = correct_count
     score.wrong_answers = wrong_count
@@ -299,27 +303,31 @@ def submit_quiz(quiz_id):
 @cache.cached(timeout=600, key_prefix=make_cache_key_scorecard)
 def get_scorecard(score_id):
     score = Score.query.get_or_404(score_id)
-    quiz = Quiz.query.get(score.quiz_id)
     user_answers = UserAnswer.query.filter_by(score_id=score_id).all()
     attempted = score.correct_answers + score.wrong_answers
 
     questions = []
+    total_marks = 0
+     
     for ans in user_answers:
         question = Question.query.get(ans.question_id)
+        total_marks += question.marks or 0
+        
         questions.append({
             "question_statement": question.question_statement,
             "selected_option": ans.selected_option,
             "correct_option": question.correct_option,
             "is_correct": ans.is_correct,
             "difficulty": question.difficulty,
-            "explanation": question.explanation
+            "explanation": question.explanation,
+            "marks": question.marks 
         })
 
     return jsonify({
         "score_id": score.score_id,
         "quiz_id": score.quiz_id,
         "total_score": score.total_score,
-        "quiz_total_marks": quiz.total_marks if quiz else 0,
+        "quiz_total_marks": total_marks ,
         "correct_answers": score.correct_answers,
         "wrong_answers": score.wrong_answers,
         "attempted_questions": attempted,
@@ -338,18 +346,26 @@ def get_score_history():
     user_id = get_jwt_identity()
     scores = Score.query.filter_by(user_id=user_id).order_by(Score.time_stamp_of_attempt.desc()).all()
     history = []
+
     for s in scores:
         quiz = Quiz.query.get(s.quiz_id)
+        total_questions = UserAnswer.query.filter_by(score_id=s.score_id).count()  # includes skipped
+
+        accuracy = (
+            f"{round((s.correct_answers / total_questions) * 100, 2)}%"
+            if total_questions else "N/A"
+        )
+
         history.append({
             "score_id": s.score_id,
             "quiz_name": quiz.name if quiz else "Unknown Quiz",
-            "score": f"{s.total_score}/{quiz.total_marks}" if quiz else s.total_score,
-            "accuracy": f"{round((s.correct_answers / (s.correct_answers + s.wrong_answers)) * 100, 2)}%" if (s.correct_answers + s.wrong_answers) else "N/A",
+            "score": f"{s.total_score}/{total_questions}",
+            "accuracy": accuracy,
             "status": s.status,
             "time_stamp_of_attempt": s.time_stamp_of_attempt.strftime('%Y-%m-%d %H:%M')
         })
-    return jsonify(history), 200
 
+    return jsonify(history), 200
 @user_bp.route('/summary-report', methods=['GET'])
 @jwt_required()
 @cache.cached(timeout=600, key_prefix=make_cache_key_user_summary)
@@ -368,16 +384,27 @@ def summary_report():
     passed = sum(1 for s in scores if s.status == "PASSED")
     failed = total_quizzes - passed
     total_correct = sum(s.correct_answers for s in scores)
-    total_questions = total_correct + sum(s.wrong_answers for s in scores)
+
+    # INCLUDE skipped questions in total count using UserAnswer
+    total_questions = sum(
+        UserAnswer.query.filter_by(score_id=s.score_id).count()
+        for s in scores
+    )
+
     accuracy = round((total_correct / total_questions) * 100, 2) if total_questions else 0
 
-    # Also prepare detailed score info for frontend charts
+    # Prepare detailed score info for frontend charts
     detailed_scores = []
     for s in scores:
+        if s.quiz:
+            total_marks = sum(q.marks for q in s.quiz.questions)
+        else:
+            total_marks = 0
+
         detailed_scores.append({
             "quiz_name": s.quiz.name if s.quiz else "Unknown Quiz",
             "total_score": s.total_score,
-            "quiz_total_marks": s.quiz.total_marks if s.quiz else 0,
+            "quiz_total_marks": total_marks,
             "status": s.status,
             "time_stamp_of_attempt": s.time_stamp_of_attempt.isoformat(),
         })
@@ -390,9 +417,9 @@ def summary_report():
             "average_score": average_score,
             "passed": passed,
             "failed": failed,
-            "accuracy": accuracy
+            "accuracy": accuracy,
         },
-        "scores": detailed_scores
+        "scores": detailed_scores,
     }), 200
 
 @user_bp.route("/search", methods=["GET"])
@@ -406,7 +433,7 @@ def user_search():
 
     results = []
 
-    # 🔍 Handle keyword-based results
+    #  Handle keyword-based results
     if query in ["subject", "subjects"]:
         subjects = Subject.query.all()
         for s in subjects:
@@ -420,6 +447,9 @@ def user_search():
     elif query in ["quiz", "quizzes"]:
         quizzes = Quiz.query.join(Chapter).join(Subject).all()
         for q in quizzes:
+            questions = q.questions
+            total_marks = sum(qn.marks for qn in questions)
+
             results.append({
                 "type": "quiz",
                 "quiz_id": q.quiz_id,
@@ -428,11 +458,12 @@ def user_search():
                 "subject_id": q.chapter.subject.subject_id,
                 "subject_name": q.chapter.subject.name,
                 "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
-                "total_marks": q.total_marks
+                "num_questions": len(questions),
+                "total_marks": total_marks
             })
 
     else:
-        # 🔎 Free-text subject search
+        #  Free-text subject search
         subjects = Subject.query.filter(
             (Subject.name.ilike(f"%{query}%")) |
             (Subject.description.ilike(f"%{query}%"))
@@ -445,13 +476,16 @@ def user_search():
                 "description": s.description
             })
 
-        # 🔎 Free-text quiz search
+        #  Free-text quiz search
         quizzes = Quiz.query.join(Chapter).join(Subject).filter(
             (Quiz.name.ilike(f"%{query}%")) |
             (Chapter.name.ilike(f"%{query}%")) |
             (Subject.name.ilike(f"%{query}%"))
         ).all()
         for q in quizzes:
+            questions = q.questions
+            total_marks = sum(qn.marks for qn in questions)
+
             results.append({
                 "type": "quiz",
                 "quiz_id": q.quiz_id,
@@ -460,10 +494,12 @@ def user_search():
                 "subject_id": q.chapter.subject.subject_id,
                 "subject_name": q.chapter.subject.name,
                 "start_datetime": q.start_datetime.strftime("%Y-%m-%d %H:%M"),
-                "total_marks": q.total_marks
+                "num_questions": len(questions),
+                "total_marks": total_marks
             })
 
     return jsonify(results), 200
+
 
 @user_bp.route("/export-quiz-history", methods=["POST"])
 @jwt_required()

@@ -102,6 +102,16 @@
                   </select>
                 </div>
                 <div class="col-md-6">
+                  <label class="form-label">Marks</label>
+                  <input
+                    v-model.number="questionForm.marks"
+                    type="number"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
                   <label class="form-label">Difficulty (optional)</label>
                   <input
                     v-model="questionForm.difficulty"
@@ -144,6 +154,7 @@
                   <th>Question Statement</th>
                   <th>Options</th>
                   <th>Correct</th>
+                  <th>Marks</th>
                   <th>Difficulty</th>
                   <th>Explanation</th>
                   <th>Actions</th>
@@ -165,6 +176,7 @@
                     </ul>
                   </td>
                   <td>{{ question.correct_option }}</td>
+                  <td>{{ question.marks }}</td>
                   <td>{{ question.difficulty || "-" }}</td>
                   <td class="text-start">{{ question.explanation || "-" }}</td>
                   <td>
@@ -232,6 +244,7 @@ export default {
         correct_option: "",
         difficulty: "",
         explanation: "",
+        marks: 1, // default marks
       },
       flashMessage: "",
       flashType: "", // 'success', 'danger', 'info', etc.
@@ -311,6 +324,7 @@ export default {
         correct_option: "",
         difficulty: "",
         explanation: "",
+        marks: 1, // default marks
       };
     },
 

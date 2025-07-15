@@ -76,16 +76,6 @@
                     required
                   />
                 </div>
-
-                <div class="col-md-4">
-                  <label class="form-label">Total Marks</label>
-                  <input
-                    v-model.number="Quiz.total_marks"
-                    type="number"
-                    class="form-control"
-                    required
-                  />
-                </div>
     
                 <div class="col-md-6">
                   <label class="form-label">Remarks</label>
@@ -222,7 +212,6 @@ export default {
         name: "",
         time_duration: "",
         start_datetime: "",
-        total_marks: null,
         remarks: "",
         tags: "",
       },
@@ -292,7 +281,6 @@ export default {
       this.Quiz = {
         name: "",
         time_duration: "",
-        total_marks: null,
         remarks: "",
         tags: "",
       };

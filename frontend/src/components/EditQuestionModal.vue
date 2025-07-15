@@ -16,7 +16,6 @@
           ></button>
         </div>
 
-
         <!-- Modal Body -->
         <div class="modal-body">
           <form @submit.prevent="updateQuestion">
@@ -45,6 +44,15 @@
               <div class="col-md-6">
                 <label class="form-label">Option 4</label>
                 <input v-model="form.option4" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Marks</label>
+                <input
+                  v-model.number="form.marks"
+                  type="number"
+                  class="form-control"
+                  required
+                />
               </div>
               <div class="col-md-6">
                 <label class="form-label">Correct Option</label>
@@ -118,6 +126,7 @@ export default {
         option2: "",
         option3: "",
         option4: "",
+        marks: 1,
         correct_option: "",
         difficulty: "",
         explanation: "",

@@ -218,12 +218,15 @@ def get_quizzes_by_chapter(chapter_id):
     quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
     quiz_list = []
     for q in quizzes:
+        total_marks = db.session.query(func.coalesce(func.sum(Question.marks), 0))\
+            .filter(Question.quiz_id == q.quiz_id).scalar()
+            
         quiz_list.append({
             "quiz_id": q.quiz_id,
             "name": q.name,
             "time_duration": q.time_duration,
             "start_datetime": q.start_datetime.isoformat() if q.start_datetime else None,
-            "total_marks": q.total_marks,
+            "total_marks": total_marks,
             "remarks": q.remarks,
             "num_questions": Question.query.filter_by(quiz_id=q.quiz_id).count(),
             "tags": q.tags,
@@ -236,7 +239,7 @@ def create_quiz_for_chapter(chapter_id):
     data = request.get_json()
 
     # Validate required fields
-    required_fields = ['name','time_duration','start_datetime','total_marks']
+    required_fields = ['name','time_duration','start_datetime']
     if not all(field in data and data[field] for field in required_fields):
         return jsonify({"message": "Missing required fields"}), 400
 
@@ -246,12 +249,14 @@ def create_quiz_for_chapter(chapter_id):
             name=data['name'],
             time_duration=data['time_duration'],
             start_datetime=datetime.strptime(data['start_datetime'], "%Y-%m-%dT%H:%M"),
-            total_marks=data['total_marks'],
             remarks=data.get('remarks', ''),
             tags=data.get('tags', '')
         )
         db.session.add(new_quiz)
         db.session.commit()
+        
+        total_marks = db.session.query(func.coalesce(func.sum(Question.marks), 0))\
+            .filter(Question.quiz_id == new_quiz.quiz_id).scalar()
         
         # Compute real question count at the time of response
         question_count = Question.query.filter_by(quiz_id=new_quiz.quiz_id).count()
@@ -261,7 +266,7 @@ def create_quiz_for_chapter(chapter_id):
             "name": new_quiz.name,
             "time_duration": new_quiz.time_duration,
             "start_datetime": new_quiz.start_datetime.isoformat(),
-            "total_marks": new_quiz.total_marks,
+            "total_marks": total_marks,
             "num_questions": question_count,
             "remarks": new_quiz.remarks,
             "tags": new_quiz.tags,
@@ -289,7 +294,6 @@ def update_quiz(quiz_id):
             quiz.start_datetime = datetime.strptime(start_dt, "%Y-%m-%dT%H:%M")
 
         quiz.time_duration = data.get('time_duration', quiz.time_duration)
-        quiz.total_marks = data.get('total_marks', quiz.total_marks)
         quiz.remarks = data.get('remarks', quiz.remarks)
         quiz.tags = data.get('tags', quiz.tags)
 
@@ -319,7 +323,7 @@ def delete_quiz(quiz_id):
 def create_question(quiz_id):
     data = request.get_json()
 
-    required_fields = ['question_statement', 'option1', 'option2', 'option3', 'option4', 'correct_option']
+    required_fields = ['question_statement', 'option1', 'option2', 'option3', 'option4', 'correct_option','marks']
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Missing required fields'}), 400
 
@@ -332,7 +336,8 @@ def create_question(quiz_id):
         option4=data['option4'],
         correct_option=data['correct_option'],
         difficulty=data.get('difficulty'),
-        explanation=data.get('explanation')
+        explanation=data.get('explanation'),
+        marks=data.get('marks', 1)  # default to 1 if not sent
     )
 
     db.session.add(question)
@@ -354,9 +359,10 @@ def get_quiz_questions(quiz_id):
             "option3": q.option3,
             "option4": q.option4,
             "correct_option": q.correct_option,
+            "marks": q.marks,  # Include marks
             "difficulty": q.difficulty,
             "explanation": q.explanation,
-            # Add any other fields needed
+            
         })
     return jsonify(questions_list)
 
@@ -376,6 +382,7 @@ def update_question(question_id):
     question.option3 = data.get('option3', question.option3)
     question.option4 = data.get('option4', question.option4)
     question.correct_option = data.get('correct_option', question.correct_option)
+    question.marks = data.get('marks', question.marks)
     question.difficulty = data.get('difficulty', question.difficulty)
     question.explanation = data.get('explanation', question.explanation)
 

@@ -6,7 +6,7 @@
     <!-- Main content -->
     <div class="flex-grow-1 d-flex flex-column" >
       <!-- Navbar -->
-      <UserNavbar class="bg-white shadow-sm"style="margin-left: 200px;" />
+      <UserNavbar class="bg-white shadow-sm"style="margin-left: 10px;" />
 
       <!-- Content container -->
       <div class="container-fluid mt-4 pt-5 overflow-auto">
@@ -47,7 +47,7 @@
                       class="col-md-6 mb-2"
                     >
                       <strong class="text-capitalize"
-                        >{{ formatKey(key) }}:</strong
+                        >{{ formatKey(key) }}: </strong
                       >
                       <span> {{ value }} </span>
                     </div>

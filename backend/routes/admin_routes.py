@@ -225,7 +225,7 @@ def get_quizzes_by_chapter(chapter_id):
             "start_datetime": q.start_datetime.isoformat() if q.start_datetime else None,
             "total_marks": q.total_marks,
             "remarks": q.remarks,
-            "num_questions": q.num_questions,
+            "num_questions": Question.query.filter_by(quiz_id=q.quiz_id).count(),
             "tags": q.tags,
         })
     return jsonify(quiz_list), 200
@@ -236,7 +236,7 @@ def create_quiz_for_chapter(chapter_id):
     data = request.get_json()
 
     # Validate required fields
-    required_fields = ['name','time_duration','start_datetime','total_marks', 'num_questions']
+    required_fields = ['name','time_duration','start_datetime','total_marks']
     if not all(field in data and data[field] for field in required_fields):
         return jsonify({"message": "Missing required fields"}), 400
 
@@ -248,11 +248,13 @@ def create_quiz_for_chapter(chapter_id):
             start_datetime=datetime.strptime(data['start_datetime'], "%Y-%m-%dT%H:%M"),
             total_marks=data['total_marks'],
             remarks=data.get('remarks', ''),
-            num_questions=data['num_questions'],
             tags=data.get('tags', '')
         )
         db.session.add(new_quiz)
         db.session.commit()
+        
+        # Compute real question count at the time of response
+        question_count = Question.query.filter_by(quiz_id=new_quiz.quiz_id).count()
       
         return jsonify({
             "quiz_id": new_quiz.quiz_id,
@@ -260,8 +262,8 @@ def create_quiz_for_chapter(chapter_id):
             "time_duration": new_quiz.time_duration,
             "start_datetime": new_quiz.start_datetime.isoformat(),
             "total_marks": new_quiz.total_marks,
+            "num_questions": question_count,
             "remarks": new_quiz.remarks,
-            "num_questions": new_quiz.num_questions,
             "tags": new_quiz.tags,
         }), 201
 
@@ -288,7 +290,6 @@ def update_quiz(quiz_id):
 
         quiz.time_duration = data.get('time_duration', quiz.time_duration)
         quiz.total_marks = data.get('total_marks', quiz.total_marks)
-        quiz.num_questions = data.get('num_questions', quiz.num_questions)
         quiz.remarks = data.get('remarks', quiz.remarks)
         quiz.tags = data.get('tags', quiz.tags)
 

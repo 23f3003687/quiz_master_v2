@@ -86,15 +86,7 @@
                     required
                   />
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">No. of Questions</label>
-                  <input
-                    v-model="Quiz.num_questions"
-                    type="text"
-                    class="form-control"
-                    required
-                  />
-                </div>
+    
                 <div class="col-md-6">
                   <label class="form-label">Remarks</label>
                   <input
@@ -231,7 +223,6 @@ export default {
         time_duration: "",
         start_datetime: "",
         total_marks: null,
-        num_questions: "",
         remarks: "",
         tags: "",
       },
@@ -302,7 +293,6 @@ export default {
         name: "",
         time_duration: "",
         total_marks: null,
-        num_questions: "",
         remarks: "",
         tags: "",
       };

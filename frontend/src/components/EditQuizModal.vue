@@ -58,15 +58,6 @@
                 />
               </div>
 
-              <div class="col-md-4">
-                <label class="form-label">Questions</label>
-                <input
-                  v-model="form.num_questions"
-                  type="text"
-                  class="form-control"
-                  required
-                />
-              </div>
 
               <div class="col-md-6">
                 <label class="form-label">Remarks</label>

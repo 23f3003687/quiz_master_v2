@@ -1,7 +1,7 @@
 import csv
 import os
 import uuid
-from models import Score, Quiz, Subject
+from models import Score, Quiz, Question
 from celery_utils import celery
 
 # Generates a unique export file path
@@ -19,8 +19,7 @@ def get_export_data(user_id):
         quiz = Quiz.query.get(score.quiz_id)
         chapter = quiz.chapter
         subject = chapter.subject
-
-        total_questions = quiz.num_questions or 1
+        total_questions = Question.query.filter_by(quiz_id=quiz.quiz_id).count() or 1
         correct = score.correct_answers or 0
         accuracy = round((correct / total_questions) * 100, 2)
 

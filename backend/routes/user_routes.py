@@ -122,13 +122,14 @@ def get_quizzes_by_subject(subject_id):
         for chapter in chapters:
             quizzes = Quiz.query.filter_by(chapter_id=chapter.chapter_id).all()
             for quiz in quizzes:
+                num_questions = Question.query.filter_by(quiz_id=quiz.quiz_id).count()
                 quiz_data = {
                     'quiz_id': quiz.quiz_id,
                     'name': quiz.name,
                     'time_duration': quiz.time_duration,
                     'start_datetime': quiz.start_datetime.isoformat() if quiz.start_datetime else None,
                     'total_marks': quiz.total_marks,
-                    'num_questions': quiz.num_questions,
+                    'num_questions': num_questions,
                     'remarks': quiz.remarks,
                     'tags': quiz.tags,
                     'chapter': {

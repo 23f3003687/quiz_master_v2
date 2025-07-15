@@ -1,12 +1,7 @@
 <template>
   <div
     class="d-flex justify-content-center align-items-center vh-100"
-    :style="{
-      backgroundImage: `url(${loginBg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-    }"
+    
   >
     <div
       class="card shadow-sm p-4 w-100"
@@ -71,7 +66,6 @@ import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import logo from "@/assets/logo.png";
-import loginBg from "@/assets/u.jpg";
 
 export default {
   name: "Login",
@@ -112,7 +106,7 @@ export default {
       errorMessage,
       login,
       logo,
-      loginBg,
+     
     };
   },
 };

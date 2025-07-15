@@ -608,7 +608,7 @@ def admin_summary():
     for date, count in daily_attempts:
         scores.append({
             "type": "daily_attempts",
-            "label": date.strftime("%Y-%m-%d"),
+            "label": date,
             "value": count
         })
 

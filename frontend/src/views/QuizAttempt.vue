@@ -9,7 +9,7 @@
       <UserNavbar class="bg-white shadow-sm" />
 
       <!-- Timer -->
-      <div class="position-fixed end-0 me-4" style="top: 70px;z-index: 1050">
+      <div class="position-fixed end-0 me-4" style="top: 70px; z-index: 1050">
         <span class="badge bg-danger fs-6 px-3 py-2">
           ⏰ {{ formattedTime }}
         </span>
@@ -23,7 +23,16 @@
         <!-- Question Card -->
         <div class="card shadow-lg">
           <div class="card-body">
-            <h5 class="card-title">Question {{ currentIndex + 1 }}</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title">Question {{ currentIndex + 1 }}</h5>
+              <span
+                v-if="currentQuestion.marks"
+                class="badge bg-dark text-white fs-6"
+              >
+                Marks: {{ currentQuestion.marks }}
+              </span>
+            </div>
+
             <p class="card-text fs-5">
               {{ currentQuestion.question_statement }}
             </p>

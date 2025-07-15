@@ -1,0 +1,4 @@
+Quiz Name,Subject,Chapter,Score,Total Marks,Correct Answers,Wrong Answers,Accuracy (%),Time Taken,Status,Attempted On
+Modal Quiz,English,Nouns,1,1,1,0,100.0%,0:03,PASSED,2025-06-15 15:55
+Kinematics Quiz,Physics,kinematics,1,2,1,0,50.0%,0:04,PASSED,2025-07-14 21:08
+Kinematics Quiz,Physics,kinematics,0,2,0,2,0.0%,0:09,FAILED,2025-07-14 21:08

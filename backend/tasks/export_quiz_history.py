@@ -19,16 +19,21 @@ def get_export_data(user_id):
         quiz = Quiz.query.get(score.quiz_id)
         chapter = quiz.chapter
         subject = chapter.subject
-        total_questions = Question.query.filter_by(quiz_id=quiz.quiz_id).count() or 1
+
+        questions = Question.query.filter_by(quiz_id=quiz.quiz_id).all()
+        total_questions = len(questions)
+        marks_per_question = questions[0].marks if questions else 1
+        total_marks = total_questions * marks_per_question
+
         correct = score.correct_answers or 0
-        accuracy = round((correct / total_questions) * 100, 2)
+        accuracy = round((correct / total_questions) * 100, 2) if total_questions else 0
 
         export_data.append({
             "Quiz Name": quiz.name,
             "Subject": subject.name,
             "Chapter": chapter.name,
             "Score": score.total_score,
-            "Total Marks": quiz.total_marks,
+            "Total Marks": total_marks,
             "Correct Answers": correct,
             "Wrong Answers": score.wrong_answers or 0,
             "Accuracy (%)": f"{accuracy}%",
@@ -38,6 +43,7 @@ def get_export_data(user_id):
         })
 
     return export_data
+
 
 # Writes the data into a CSV file
 def write_csv(filepath, data):

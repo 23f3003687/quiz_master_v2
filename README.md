@@ -18,18 +18,17 @@ Your system will:
 Show live in this order:
 
 1️⃣ Terminal 1: Redis Server
-
 redis-server
+
 2️⃣ Terminal 2: Start Flask App
-
 flask run
-3️⃣ Terminal 3: Start Celery Worker
 
+3️⃣ Terminal 3: Start Celery Worker
 celery -A celery_worker.celery worker --loglevel=info --pool=solo
+
 ✅ You’ll see tasks getting received and processed.
 
 4️⃣ Terminal 4: Start Celery Beat
-
 celery -A celery_worker.celery beat --loglevel=info
 
 Sir/Ma'am, the Celery worker and beat must run alongside Redis and Flask to trigger automated tasks. Once started, tasks like sending daily reminders and monthly reports are handled on schedule via Celery Beat.

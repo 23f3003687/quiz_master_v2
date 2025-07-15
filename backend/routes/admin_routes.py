@@ -69,7 +69,6 @@ def create_subject():
     
 @admin_bp.route('/subject/<int:subject_id>', methods=['GET']) #show subject details
 @jwt_required()
-
 def get_subject_details(subject_id):
     claims = get_jwt()
     if not claims or not claims.get("is_admin", False):
@@ -343,7 +342,6 @@ def create_question(quiz_id):
     db.session.add(question)
     db.session.commit()
      
-
     return jsonify({'message': 'Question created successfully'}), 201
 
 @admin_bp.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
@@ -368,7 +366,6 @@ def get_quiz_questions(quiz_id):
 
 @admin_bp.route('/questions/<int:question_id>', methods=['PUT'])
 @jwt_required()
-
 def update_question(question_id):
     data = request.get_json()
 

@@ -3,7 +3,6 @@ from celery_utils import celery
 from models import User
 from utils.csv_helper import generate_user_csv
 from utils.email_helper import send_email
-from datetime import date
 from app import create_app
 
 app = create_app()

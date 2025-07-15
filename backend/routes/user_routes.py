@@ -366,6 +366,7 @@ def get_score_history():
         })
 
     return jsonify(history), 200
+
 @user_bp.route('/summary-report', methods=['GET'])
 @jwt_required()
 @cache.cached(timeout=600, key_prefix=make_cache_key_user_summary)

@@ -1,7 +1,10 @@
 <template>
   <div class="d-flex vh-100 overflow-hidden">
     <!-- Sidebar -->
-    <Sidebar class="bg-dark text-white" />
+    <Sidebar
+      class="bg-dark text-white p-3"
+      style="width: 175px; min-width: 175px"
+    />
 
     <!-- Main content area -->
     <div class="flex-grow-1 d-flex flex-column">
@@ -204,7 +207,6 @@ export default {
 }
 
 .modal-actions {
-   
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -220,6 +222,4 @@ export default {
   color: white;
   cursor: pointer;
 }
-
-
 </style>

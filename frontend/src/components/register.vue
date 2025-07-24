@@ -7,11 +7,11 @@
       class="card shadow-sm p-4 w-100"
       style="
         max-width: 400px;
-        background-color: rgba(178, 222, 240, 0.68);
+        background-color: rgba(205, 232, 243, 0.6);
         border: none;
       "
     >
-      <h3 class="text-center mb-4">Create an Account</h3>
+      <h3 class="text-center mb-4">Create an Account!</h3>
       <form @submit.prevent="register">
         <div class="mb-3">
           <label for="full_name" class="form-label">Full Name</label>

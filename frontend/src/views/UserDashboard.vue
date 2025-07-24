@@ -25,7 +25,7 @@
         <!-- Cards -->
         <div class="row mb-4">
           <div class="col-md-4">
-            <div class="card text-white bg-primary shadow-sm">
+            <div class="card text-white bg-info shadow-sm">
               <div class="card-body">
                 <h5 class="card-title">Performance</h5>
                 <p class="card-text">{{ performance }}%</p>

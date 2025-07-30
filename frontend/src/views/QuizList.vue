@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex vh-100 ">
+  <div class="d-flex vh-100">
     <!-- Sidebar on the left -->
     <Sidebar class="bg-dark text-white" />
 
@@ -76,7 +76,7 @@
                     required
                   />
                 </div>
-    
+
                 <div class="col-md-6">
                   <label class="form-label">Remarks</label>
                   <input
@@ -336,7 +336,14 @@ export default {
           setTimeout(() => (this.showFlash = false), 3000);
         });
       } catch (err) {
-        this.flashMessage = "Failed to delete quiz.";
+        if (err.response && err.response.status === 400) {
+          // Backend returned a message like: "Cannot delete. This quiz has already been attempted by users."
+          this.flashMessage =
+            err.response.data.message || "Failed to delete quiz.";
+        } else {
+          this.flashMessage = "Failed to delete quiz.";
+        }
+
         this.flashType = "danger";
         this.showFlash = false;
         this.$nextTick(() => {

@@ -318,9 +318,21 @@ export default {
         setTimeout(() => {
           this.$router.push("/dashboard");
         }, 1500);
-      } catch (error) {
-        console.error("Failed to delete subject:", error);
-        this.showFlashMessage("Failed to delete subject", "danger");
+      } catch (err) {
+        if (err.response && err.response.status === 400) {
+          // Backend returned a message like: "Cannot delete. This subject has already been attempted by users."
+          this.flashMessage = err.response.data.error;
+        } else {
+          this.flashMessage = "Failed to delete subject.";
+        }
+
+        this.flashType = "danger";
+        this.showFlash = false;
+        this.$nextTick(() => {
+          this.showFlash = true;
+          setTimeout(() => (this.showFlash = false), 3000);
+        });
+        console.error(err);
       }
     },
 

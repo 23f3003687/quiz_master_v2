@@ -129,14 +129,25 @@ def update_subject(subject_id):
 def delete_subject(subject_id):
     claims = get_jwt()
     if not claims or not claims.get("is_admin", False):
-       return jsonify({"error": "Unauthorized"}), 403
+        return jsonify({"error": "Unauthorized"}), 403
+
     subject = Subject.query.get(subject_id)
     if not subject:
         return jsonify({'error': 'Subject not found'}), 404
 
+    # Check if any quiz under this subject has been attempted
+    for chapter in subject.chapters:
+        for quiz in chapter.quizzes:
+            if quiz.scores:  # if any Score exists for this quiz
+                return jsonify({
+                    'error': 'Cannot delete subject. A quiz under this subject has been attempted by users.'
+                }), 400
+
     db.session.delete(subject)
     db.session.commit()
-    return jsonify({'message': 'Subject deleted successfully'}) , 200
+    return jsonify({'message': 'Subject deleted successfully'}), 200
+
+
 
 @admin_bp.route('/chapters', methods=['POST'])
 @jwt_required()
@@ -306,17 +317,27 @@ def update_quiz(quiz_id):
 @jwt_required()
 def delete_quiz(quiz_id):
     quiz = Quiz.query.get(quiz_id)
+
     if not quiz:
         return jsonify({"error": "Quiz not found"}), 404
 
+    # Prevent deletion if the quiz has been attempted by any user
+    attempted = Score.query.filter_by(quiz_id=quiz_id).first()
+    if attempted:
+        return jsonify({
+            "message": "Cannot delete. This quiz has already been attempted by users."
+        }), 400
+
     try:
-        db.session.delete(quiz)
+        db.session.delete(quiz)  # This will also delete related questions (due to cascade)
         db.session.commit()
-        return jsonify({"message": f"Quiz {quiz_id} deleted successfully"}), 200
+        return jsonify({
+            "message": f"Quiz {quiz_id} deleted successfully"
+        }), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-    
+
 @admin_bp.route('/quizzes/<int:quiz_id>/questions', methods=['POST'])
 @jwt_required()
 def create_question(quiz_id):

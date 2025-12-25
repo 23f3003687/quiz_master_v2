@@ -47,5 +47,7 @@ flask shell
 >>>from tasks.monthly_report import send_monthly_reports
 >>>send_monthly_reports.delay()
 (for the monthly_report showing to mail instantly)
+>>>
+>>>Made by Nitya Sharma ,2025
 
 
